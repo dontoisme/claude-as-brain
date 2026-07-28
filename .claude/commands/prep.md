@@ -81,6 +81,14 @@ Keep it short. This is read while walking to a meeting, not at a desk.
 
 **Say when there's nothing.** "No prior notes on this person — first meeting?" is useful and takes one line. Then offer to create the `People/` note after.
 
+## Scaling: Parallel Retrieval
+
+If `retrieval_mode: parallel` in `CLAUDE.md`, the six gathers in Step 2 are independent — dispatch them concurrently as `vault-scout` assignments (meeting history, open commitments, unresolved questions, recent context, decisions in flight, stored facts).
+
+Worth it when someone has a long history in the vault. For a first meeting with two prior mentions, inline is faster.
+
+Assembly and the "worth raising" judgment stay in the main thread. Deciding which outstanding item is the awkward one requires seeing all six results together.
+
 ## If `bd` Isn't Installed
 
 Commitments come from meeting notes and the "I owe them / they owe me" sections of `People/` notes. Less reliable, still valuable — say once that beads would make this sharper.

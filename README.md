@@ -116,6 +116,18 @@ Without it, the vault still works — task tracking falls back to hand-maintaine
 
 ---
 
+## Scaling Up
+
+Set `retrieval_mode: parallel` in `CLAUDE.md` and `/ask`, `/thread`, and `/prep` fan out to subagents instead of searching in one thread — scouts sweep each search angle concurrently, readers process candidate notes in batches, and the main thread synthesizes.
+
+It costs more tokens and buys better answers on large vaults, where reading eight notes in a single context starts crowding out the reasoning that comes after. Under a few hundred notes the default `inline` mode is genuinely better; spawn latency exceeds the benefit.
+
+Model tiering is where the cost lands: scouts run on Haiku (mechanical search and ranking), readers on Sonnet (extraction with judgment). Adjust in `.claude/agents/`.
+
+**The rule that makes it safe:** subagents return verbatim quotes with file paths and never conclusions. Synthesis stays in the main thread. A memory system that summarizes a summary will eventually tell you something you never wrote — and you'll believe it, because that's the entire point of keeping one.
+
+---
+
 ## Structure
 
 ```
@@ -129,7 +141,8 @@ Without it, the vault still works — task tracking falls back to hand-maintaine
 │
 ├── CLAUDE.md               ← the heart; customize this
 ├── AGENTS.md               .beads/issues.jsonl
-└── .claude/commands/
+├── .claude/commands/       Slash commands
+└── .claude/agents/         vault-scout, note-reader (parallel mode)
 ```
 
 Identical to a conventional Obsidian vault. That's deliberate — approval day should be a no-op, not a migration.

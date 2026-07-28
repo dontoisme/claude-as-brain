@@ -84,6 +84,14 @@ Close with:
 
 **Contradiction never noticed** — the highest-value output. Flag it directly: *"Your Mar 12 note and your Jun 2 note take opposite positions and nothing reconciles them."*
 
+## Scaling: Parallel Retrieval
+
+If `retrieval_mode: parallel` in `CLAUDE.md`, fan out the collection step — `vault-scout` per angle, then `note-reader` batches over the candidates. Same contract as `/ask`: **subagents return dated verbatim excerpts; you build the timeline.**
+
+The ordering and arc analysis must stay in the main thread. A subagent seeing three of eleven notes will confidently report a turning point that isn't one — the arc is only visible from the whole sequence, which is exactly what a partial view cannot show.
+
+Batch readers **by time period** rather than by topic, so each returns a contiguous slice you can stitch in order.
+
 ## If `bd` Isn't Installed
 
 Markdown-only timeline. Skip the bead lifecycle points. Everything else works.

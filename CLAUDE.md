@@ -63,6 +63,30 @@ Beads is optional. If `bd` isn't on PATH, say so once, fall back to markdown-onl
 
 ---
 
+## Retrieval Mode
+
+```
+retrieval_mode: inline
+```
+
+**`inline`** (default) — retrieval commands do their own searching and reading, sequentially. Right for most vaults and for anyone watching token spend.
+
+**`parallel`** — `/ask`, `/thread`, and `/prep` fan out to subagents (`vault-scout`, `note-reader`) and synthesize the results. Costs meaningfully more tokens; buys better answers on large vaults, where reading eight notes in one context crowds out the reasoning that has to follow.
+
+Switch by editing the value above. Rough guide: under ~200 notes, `inline` is genuinely better — spawn latency exceeds the benefit. Past ~500, `parallel` starts to win.
+
+### The delegation rule
+
+**Subagents return evidence. Only the main thread draws conclusions.**
+
+This is not a style preference. A subagent that reports *"the decision was annual-only"* has already synthesized, and the answer you give the user is then built on a paraphrase of a paraphrase. In a system whose purpose is to be trusted about what they actually wrote, that is the failure that matters most.
+
+Subagents quote verbatim with file paths. You interpret. And synthesis stays in the main thread for a second reason: it's the only context that knows this conversation.
+
+Never delegate: `/capture` and `/brief` (speed is the feature), `/save-to-brain` (needs session context a subagent cannot see), `/daily-note` (one file).
+
+---
+
 ## Structure
 
 ### PARA

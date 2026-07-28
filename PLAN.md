@@ -269,6 +269,9 @@ The `/install` command, the seed `.beads/issues.jsonl` (issues + example memorie
 **Phase 6 — Seed content and docs**
 A few example notes so `/ask` and `/thread` have something to chew on, a `START HERE.md`, and a README that leads with the retrieval demo rather than the folder diagram.
 
+**Phase 6.5 — Parallel retrieval (done early)**
+`.claude/agents/vault-scout.md` and `note-reader.md`, plus the `retrieval_mode` switch in `CLAUDE.md` and scaling sections in `/ask`, `/thread`, `/prep`. Model-tiered (Haiku scouts, Sonnet readers) so the cost dial is explicit. Governing constraint: subagents return verbatim evidence, main thread synthesizes.
+
 **Phase 7 — Validation**
 Actually use it for a week. Every command run against real content. Fix what's annoying before publishing.
 

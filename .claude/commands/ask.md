@@ -42,6 +42,32 @@ Grep gives you candidates. Now **read the promising notes in full** — typicall
 
 Prioritize: MOC-linked notes → notes with many hits → recent notes → meeting notes over daily notes for decisions.
 
+## Scaling: Parallel Retrieval
+
+Check `retrieval_mode` in `CLAUDE.md`.
+
+**`inline`** (default) — do everything above yourself, sequentially. Correct for small vaults and the right default for anyone watching token spend.
+
+**`parallel`** — fan out. Worth it once the vault passes a few hundred notes, where reading eight files in one context starts crowding out the reasoning that has to happen afterward:
+
+1. **Scout** — dispatch one `vault-scout` per angle from Step 1, concurrently. Each returns ranked paths with verbatim matching lines.
+2. **Read** — dedupe and rank the union, then dispatch `note-reader` agents over the top candidates, 2–4 notes each.
+3. **Synthesize** — **you** do this, in the main thread. Never delegate it.
+
+### The rule that makes delegation safe
+
+**Subagents return evidence. Only the main thread draws conclusions.**
+
+A scout that reports *"the decision was annual-only"* has already done the synthesis, badly, and you'd be building the user's answer on a paraphrase of a paraphrase. That's precisely how a memory system starts confidently asserting things nobody wrote. Both agent definitions enforce verbatim quoting; hold them to it, and if a subagent hands back a conclusion, go read the cited file yourself before repeating it.
+
+Synthesis also stays in the main thread because it's the only place that knows the conversation — what the user already said this session, what they meant, what they've already rejected.
+
+### Don't parallelize
+
+- **Trivially narrow questions.** "What's Dana's role?" is one file. Spawning agents costs more latency than it saves.
+- **Anything needing session context.** Subagents cannot see this conversation.
+- **When `bd` is the whole answer.** `bd search` is already fast.
+
 ## Step 3: Answer
 
 Lead with the answer. Not with your process, not with what you searched.
