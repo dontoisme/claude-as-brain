@@ -74,6 +74,52 @@ Then run:
 
 The repo ships as a **distribution**, not a working vault. `/install` unpacks it into yours: asks about your work, fills in `CLAUDE.md`, creates your real Areas, sets up beads, and offers to clear the example content.
 
+### Or just paste this prompt
+
+If you'd rather not clone first — or you want Claude to set the whole thing up from scratch in a folder of your choosing — paste this into Claude Code:
+
+```
+I want to set up a Claude-as-Brain: a personal knowledge system where you are
+the retrieval layer, stored as plain markdown so it stays portable.
+
+Please:
+
+1. Clone https://github.com/dontoisme/claude-as-brain.git into a folder I'll
+   name, then remove the git remote so my notes never push to the template.
+
+2. Check whether `bd` (beads) is installed. If not, tell me `brew install beads`
+   and that it's optional — it powers task tracking and a memory layer that
+   loads into every session. Continue either way.
+
+3. Ask me about my work — what I'm responsible for ongoing, what's active with
+   a deadline, who I work with most. Keep it conversational, a few exchanges,
+   not a form.
+
+4. From my answers, fill in the customizable sections of CLAUDE.md: what the
+   vault is for, my Areas (4-8, each with a one-line scope), my tag vocabulary,
+   and my current context. Remove the placeholder markers as you go.
+
+5. Create an Area note for each Area from Templates/Area Note.md. Substitute
+   the {{date:...}} values — never write that syntax literally into a note.
+
+6. If beads is installed: bd init, bd import to unpack the seed, bd setup claude,
+   bd hooks install. Then store one real fact from my answers with `bd remember`
+   and show me that it'll be in every future session. That's the part people
+   miss.
+
+7. Before clearing the examples, run `/thread annual pricing` so I can see what
+   this system does that a notes app can't. Then clear the example content.
+
+8. Capture one real thing from my actual day, so the vault starts with
+   something true in it.
+
+9. Finish by telling me just three commands to start with, not thirteen.
+
+Ask me my folder name and what I do, and let's go.
+```
+
+Works in a fresh directory or an existing one. If you're setting this up for work notes, tell Claude — it'll recommend a private remote or none at all.
+
 ### Optional: beads
 
 [Beads](https://github.com/steveyegge/beads) powers the task and memory layers. Strongly recommended, not required.
@@ -113,6 +159,27 @@ Without it, the vault still works — task tracking falls back to hand-maintaine
 | `/link-check` | Find broken links and orphaned notes |
 | `/weekly-review` | The Friday synthesis |
 | `/ramp` | New-role capture: org, people, acronyms, systems |
+
+### Setup
+| | |
+|---|---|
+| `/install` | Unpack the distribution into your own vault |
+
+---
+
+## Try It Before You Clear the Examples
+
+The repo ships with a worked example: a pricing decision that gets quietly undermined over five weeks. Five notes, five beads, three memories — all tagged `example-seed` and removed in one step.
+
+Before deleting it, run:
+
+```
+/thread annual pricing
+```
+
+It'll walk you from March to April and tell you the decision was explicitly conditional, that the condition was never given a number, and that two independent signals accumulated against it without ever triggering the revisit.
+
+That's the pitch. Search can't do it, graph view can't do it, and neither can you at 8am before a planning meeting.
 
 ---
 
