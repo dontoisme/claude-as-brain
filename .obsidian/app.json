@@ -1,0 +1,8 @@
+{
+  "alwaysUpdateLinks": true,
+  "newLinkFormat": "relative",
+  "useMarkdownLinks": false,
+  "attachmentFolderPath": "Resources/attachments",
+  "showUnsupportedFiles": true,
+  "promptDelete": false
+}
