@@ -61,7 +61,7 @@ The third layer is the one people don't expect. `bd remember "Dana owns the bill
 ## Install
 
 ```bash
-git clone https://github.com/YOUR-USERNAME/claude-as-brain.git my-brain
+git clone https://github.com/dontoisme/claude-as-brain.git my-brain
 cd my-brain
 claude
 ```
