@@ -31,7 +31,7 @@ The March annual-only decision was explicitly conditional — Dana said "revisit
 
 The rationale was never load-bearing on its own — it was load-bearing *given* a cash constraint that no longer applies the same way. That's worth naming plainly: the decision may still be right, but the argument for it isn't the argument we made.
 
-Opened cab-ex2 to revisit properly. Also need churn by contract term (cab-ex4) — that's the evidence that would settle it either way, and it's striking that we've had this debate twice without it.
+Opened cab-ex2 to revisit properly. Also need churn by contract term (cab-ex4) — that's the evidence that would settle it either way, and it's striking that we've had this debate twice without it. → [[Days/20250418]]
 
 ### 2025-04-02
 

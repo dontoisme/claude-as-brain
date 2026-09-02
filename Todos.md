@@ -1,6 +1,6 @@
 ---
 tags: ["#todos"]
-generated: 2026-09-02 05:10
+generated: 2026-09-02 05:40
 ---
 
 # ✅ Action Items
@@ -14,7 +14,6 @@ generated: 2026-09-02 05:10
 
 | Task | Owner | Source | Due | ID |
 |------|-------|--------|-----|-----|
-| Temporal retrieval — Phase E: extraction in /weekly-review | You | [[Projects/Temporal Retrieval Spec]] | — | cab-a54 |
 | Memoryfield §5 — Auto-promotion between layers | You | [[Projects/Memoryfield Improvements Spec]] | — | cab-2ch |
 | Memoryfield §3 — Contradiction detection as a maintenance pass | You | [[Projects/Memoryfield Improvements Spec]] | — | cab-ixy |
 | Revisit annual-only pricing for mid-market | You | [[Areas/Pricing]] | — | cab-ex2 |
@@ -37,6 +36,7 @@ generated: 2026-09-02 05:10
 
 ## ✅ Recently Closed
 
+- ~~Temporal retrieval — Phase E: extraction in /weekly-review~~ — closed 2026-09-02 (cab-a54)
 - ~~Temporal retrieval — Phase D: embeddings~~ — closed 2026-09-02 (cab-659)
 - ~~Temporal retrieval — Phase B: retrieval bumps + activation~~ — closed 2026-09-02 (cab-m6r)
 - ~~Temporal retrieval — Phase C: query intent profiles~~ — closed 2026-09-02 (cab-7wb)
@@ -49,4 +49,4 @@ generated: 2026-09-02 05:10
 
 ---
 
-*Generated 2026-09-02 05:10 · `bd ready` for the live view*
+*Generated 2026-09-02 05:40 · `bd ready` for the live view*

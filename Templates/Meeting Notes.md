@@ -2,6 +2,9 @@
 date: {{date:YYYY-MM-DD}}
 tags: ["#meeting"]
 source: mixed
+summary: 
+distilled_to: []
+distilled_on: 
 attendees: []
 related_areas: []
 related_projects: []

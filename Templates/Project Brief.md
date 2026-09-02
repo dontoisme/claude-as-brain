@@ -2,6 +2,7 @@
 date: {{date:YYYY-MM-DD}}
 tags: ["#project"]
 source: human
+summary: 
 status: active
 target: <!-- YYYY-MM-DD -->
 area: <!-- [[Areas/Parent Area]] -->

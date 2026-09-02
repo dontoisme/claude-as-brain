@@ -34,6 +34,12 @@ python3 .claude/scripts/memory_meta.py due --limit 5
 ```
 Memories past their ttl (default 90 days, 60 for people), oldest first, capped at five. Skip the section when it's empty.
 
+**Cooling off** —
+```bash
+python3 .claude/scripts/brain_index.py cooling --since 7
+```
+Notes whose activation crossed below 0.6 this week with nothing distilled out of them. Show at most three, oldest first: *"distill or let go?"* Skip the section when empty or when there's no index.
+
 **Today's meetings** — anything already captured in `Days/` or `Meetings/`. Don't invent a calendar you can't see; if there's no meeting info in the vault, skip the section silently.
 
 ## Step 2: Write It

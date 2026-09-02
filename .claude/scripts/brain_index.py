@@ -72,7 +72,7 @@ def classify(question: str) -> tuple[str, str | None]:
                 return profile, trig
     return "current", None
 SOURCE_MULT = {"human": 1.0, "mixed": 0.95, "inferred": 0.85, "external": 0.7}
-SCHEMA_VERSION = "2"
+SCHEMA_VERSION = "3"
 ACTIVATION_D = 0.5
 EMBED_CHARS = 8000            # spec: cap ~8k chars; longer notes embed the first 8k plus summary, flagged truncated
 OLLAMA_URL = os.environ.get("OLLAMA_HOST", "http://localhost:11434").rstrip("/")
@@ -98,7 +98,8 @@ CREATE TABLE IF NOT EXISTS notes (
   tags            TEXT,
   word_count      INTEGER DEFAULT 0,
   source          TEXT,
-  confidence      TEXT
+  confidence      TEXT,
+  distilled_to    TEXT
 );
 CREATE TABLE IF NOT EXISTS retrievals (
   path TEXT NOT NULL,
@@ -408,22 +409,23 @@ def cmd_reindex(args: argparse.Namespace) -> int:
             "word_count": len(body.split()),
             "source": str(fm["source"]).strip().lower() if fm.get("source") else None,
             "confidence": str(fm["confidence"]).strip().lower() if fm.get("confidence") else None,
+            "distilled_to": json.dumps([str(x) for x in fm["distilled_to"]]) if isinstance(fm.get("distilled_to"), list) else None,
         }
         if rel not in existing:
             conn.execute(
-                "INSERT INTO notes (path, note_type, created, updated, content_hash, summary, title, status, tags, word_count, source, confidence)"
-                " VALUES (:path, :note_type, :created, :updated, :content_hash, :summary, :title, :status, :tags, :word_count, :source, :confidence)", row)
+                "INSERT INTO notes (path, note_type, created, updated, content_hash, summary, title, status, tags, word_count, source, confidence, distilled_to)"
+                " VALUES (:path, :note_type, :created, :updated, :content_hash, :summary, :title, :status, :tags, :word_count, :source, :confidence, :distilled_to)", row)
             added += 1
         elif existing[rel]["content_hash"] != h:
             conn.execute(
                 "UPDATE notes SET note_type=:note_type, created=:created, updated=:updated, content_hash=:content_hash,"
                 " summary=:summary, title=:title, status=:status, tags=:tags, word_count=:word_count, embedding=NULL,"
-                " source=:source, confidence=:confidence WHERE path=:path", row)
+                " source=:source, confidence=:confidence, distilled_to=:distilled_to WHERE path=:path", row)
             updated += 1
         else:
             # metadata can move without the body changing (a date edit, a git commit)
             conn.execute("UPDATE notes SET note_type=:note_type, created=:created, updated=:updated, summary=:summary,"
-                         " title=:title, status=:status, tags=:tags, source=:source, confidence=:confidence WHERE path=:path", row)
+                         " title=:title, status=:status, tags=:tags, source=:source, confidence=:confidence, distilled_to=:distilled_to WHERE path=:path", row)
             unchanged += 1
         if embedder and (rel not in existing or existing[rel]["content_hash"] != h or not existing[rel]["has_emb"] or model_changed):
             text_in, was_truncated = embed_input(body, row["summary"])
@@ -666,6 +668,145 @@ def cmd_bump(args: argparse.Namespace) -> int:
     return 0
 
 
+def replace_fm_keys(text: str, values: dict) -> str:
+    """Set top-level frontmatter keys in place, preserving everything else; creates frontmatter if absent."""
+    m = FM_RE.match(text)
+    if not m:
+        return replace_fm_keys(f"---\n---\n\n{text.lstrip()}", values)
+    raw = m.group(1)
+    lines = [l for l in raw.split("\n") if l.strip()]
+    for key, value in values.items():
+        if isinstance(value, (list, dict)):
+            rendered = yaml.safe_dump(value, default_flow_style=True, allow_unicode=True, width=1000).strip()
+        else:
+            rendered = re.sub(r"\n\.\.\.$", "", yaml.safe_dump(value, allow_unicode=True, width=1000).strip())
+        dumped = [f"{key}: {rendered}"]
+        start = end = None
+        for i, line in enumerate(lines):
+            if start is None and re.match(rf"^{re.escape(key)}\s*:", line):
+                start = i
+                continue
+            if start is not None and re.match(r"^[A-Za-z0-9_\-]+\s*:", line) and not line.startswith(" "):
+                end = i
+                break
+        if start is None:
+            lines = lines + dumped
+        else:
+            lines = lines[:start] + dumped + lines[len(lines) if end is None else end:]
+    return text[: m.start(1)] + "\n".join(lines) + text[m.end(1):]
+
+
+def cmd_undistilled(args: argparse.Namespace) -> int:
+    vault = Path(args.vault).resolve()
+    conn = open_index(vault)
+    if conn is None:
+        print("no index — run /reindex", file=sys.stderr)
+        return 3
+    cutoff = iso(now_utc() - dt.timedelta(days=args.since))
+    rows = conn.execute("SELECT path, updated, note_type FROM notes WHERE note_type IN ('day','meeting') AND updated >= ?"
+                        " AND (distilled_to IS NULL) ORDER BY updated", (cutoff,)).fetchall()
+    if args.json:
+        print(json.dumps([dict(r) for r in rows], indent=2))
+        return 0
+    if not rows:
+        print(f"nothing undistilled in the last {args.since} days")
+        return 0
+    for r in rows:
+        print(f"{r['updated'][:10]}  {r['path']}")
+    print(f"{len(rows)} event-shaped note(s) without distilled_to")
+    return 0
+
+
+def cmd_distill(args: argparse.Namespace) -> int:
+    vault = Path(args.vault).resolve()
+    path = vault / args.note
+    if not path.exists():
+        print(f"no such note: {args.note}", file=sys.stderr)
+        return 1
+    targets = [] if (len(args.to) == 1 and args.to[0].lower() == "none") else args.to
+    today = args.date or dt.date.today().isoformat()
+    text = path.read_text(encoding="utf-8")
+    path.write_text(replace_fm_keys(text, {"distilled_to": targets, "distilled_on": today}), encoding="utf-8")
+    conn = open_index(vault)
+    if conn is not None:
+        conn.execute("UPDATE notes SET distilled_to=? WHERE path=?", (json.dumps(targets), args.note.replace("\\", "/")))
+        conn.commit()
+    print(f"✓ {args.note} distilled_on {today} → {', '.join(targets) if targets else 'nothing durable'}")
+    return 0
+
+
+def cmd_cooling(args: argparse.Namespace) -> int:
+    vault = Path(args.vault).resolve()
+    conn = open_index(vault)
+    if conn is None:
+        print("no index — run /reindex", file=sys.stderr)
+        return 3
+    now = now_utc()
+    then = now - dt.timedelta(days=args.since) if args.since else None
+    out = []
+    for r in conn.execute("SELECT path, note_type, distilled_to, last_referenced FROM notes WHERE ref_count > 0 AND distilled_to IS NULL"):
+        act_now, refs, last = activation(conn, r["path"], now)
+        if act_now >= args.threshold:
+            continue
+        if then is not None:
+            act_then, _, _ = activation(conn, r["path"], then)
+            if act_then < args.threshold:
+                continue  # was already cold; not a crossing this window
+        out.append({"path": r["path"], "note_type": r["note_type"], "activation": round(act_now, 3), "refs": refs,
+                    "last_referenced": iso(last) if last else None})
+    out.sort(key=lambda d: d["last_referenced"] or "")
+    if args.json:
+        print(json.dumps(out, indent=2))
+        return 0
+    if not out:
+        print("nothing cooling off" + (f" in the last {args.since} days" if args.since else ""))
+        return 0
+    for d in out[: args.limit]:
+        print(f"{d['activation']:.2f}  {d['path']}   (last cited {d['last_referenced'][:10] if d['last_referenced'] else '—'} · {d['refs']} refs · {d['note_type']})")
+    if len(out) > args.limit:
+        print(f"… {len(out) - args.limit} more")
+    return 0
+
+
+def cmd_distilled_check(args: argparse.Namespace) -> int:
+    vault = Path(args.vault).resolve()
+    conn = open_index(vault)
+    if conn is None:
+        print("no index — run /reindex", file=sys.stderr)
+        return 3
+    bead_ids: set[str] = set()
+    issues = vault / ".beads" / "issues.jsonl"
+    if issues.exists():
+        for line in issues.read_text(encoding="utf-8").splitlines():
+            try:
+                d = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            if d.get("id"):
+                bead_ids.add(d["id"])
+    dangling = []
+    for r in conn.execute("SELECT path, distilled_to FROM notes WHERE distilled_to IS NOT NULL"):
+        for target in json.loads(r["distilled_to"] or "[]"):
+            tgt = str(target).strip()
+            if tgt.startswith("bd:"):
+                if bead_ids and tgt[3:] not in bead_ids:
+                    dangling.append((r["path"], tgt, "no such bead"))
+            else:
+                inner = tgt[2:-2] if tgt.startswith("[[") and tgt.endswith("]]") else tgt
+                if resolve_link(conn, inner) is None:
+                    dangling.append((r["path"], tgt, "no such note"))
+    if args.json:
+        print(json.dumps([{"path": p, "target": t_, "problem": why} for p, t_, why in dangling], indent=2))
+        return 0
+    if not dangling:
+        print("all distilled_to targets resolve")
+        return 0
+    for p_, tgt, why in dangling:
+        print(f"{p_}  →  {tgt}   ({why})")
+    print(f"{len(dangling)} dangling distilled_to target(s)")
+    return 1
+
+
 def cmd_show(args: argparse.Namespace) -> int:
     vault = Path(args.vault).resolve()
     conn = open_index(vault)
@@ -709,6 +850,24 @@ def main(argv: list[str] | None = None) -> int:
     c = sub.add_parser("classify", help="which intent profile a question gets, and why")
     c.add_argument("question")
     c.set_defaults(func=lambda a: print(json.dumps(dict(zip(("profile", "trigger"), classify(a.question))))) or 0)
+    u = sub.add_parser("undistilled", help="event-shaped notes updated recently that have no distilled_to")
+    u.add_argument("--since", type=int, default=7, help="days")
+    u.add_argument("--json", action="store_true")
+    u.set_defaults(func=cmd_undistilled)
+    d = sub.add_parser("distill", help="write distilled_to / distilled_on into a note's frontmatter")
+    d.add_argument("note")
+    d.add_argument("--to", action="append", required=True, help="'[[Areas/Pricing]]' or 'bd:cab-31'; repeatable; 'none' = reviewed, nothing durable")
+    d.add_argument("--date", help="override distilled_on (YYYY-MM-DD)")
+    d.set_defaults(func=cmd_distill)
+    co = sub.add_parser("cooling", help="retrieved-once notes whose activation fell below the threshold, with nothing distilled")
+    co.add_argument("--since", type=int, help="only notes that crossed the threshold within N days")
+    co.add_argument("--threshold", type=float, default=0.6)
+    co.add_argument("--limit", type=int, default=10)
+    co.add_argument("--json", action="store_true")
+    co.set_defaults(func=cmd_cooling)
+    dc = sub.add_parser("distilled-check", help="distilled_to targets that don't exist")
+    dc.add_argument("--json", action="store_true")
+    dc.set_defaults(func=cmd_distilled_check)
     s = sub.add_parser("show", help="dump one note's index row")
     s.add_argument("path")
     s.set_defaults(func=cmd_show)

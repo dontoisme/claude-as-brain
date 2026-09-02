@@ -25,6 +25,16 @@ python3 .claude/scripts/memory_meta.py confirm <key>      # starts its 90-day co
 
 If there's a durable fact *inside* a larger insight, do both: write the note, and pull the fact out into a memory.
 
+## Step 2b: Is It Already a Memory?
+
+Before writing, check whether the vault already says this — three times over:
+
+```bash
+python3 .claude/scripts/brain_review.py promote --text "<the one or two key sentences>"
+```
+
+If the same sentence (fuzzy, ≥ 0.85) already appears in three or more notes, the script says so. That's a fact being re-learned, not an insight being captured: propose `bd remember` instead of a fourth note, and say which notes it's in. **Propose, don't act** — one line, their call. Skip when there's no index.
+
 ## Step 3: Route It
 
 **Look at what actually exists first** — list `Areas/`, `Projects/`, `Resources/`. Routing to a folder that isn't there creates orphans.

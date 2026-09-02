@@ -28,6 +28,11 @@ Written automatically by `/save-to-brain`. Add entries by hand any time.
 
 <!-- Newest first. Add below this line. -->
 
+### 2026-09-02 — Weekly review distills instead of summarising
+**Category:** Project
+**Summary:** Event notes (Days, Meetings) get their durable content moved to Areas, memories, beads, or Resources, then are marked `distilled_to` so they can decay. `/brief` shows what's cooling off undistilled; `/link-check` catches dangling targets. Seed pricing thread distilled as the worked example.
+**Location:** [[Projects/Temporal Retrieval Spec]] · [[Areas/Pricing]]
+
 ### 2026-09-02 — Semantic search, if and only if a local ollama is running
 **Category:** Project
 **Summary:** `/reindex` embeds notes with `nomic-embed-text` when ollama serves it and `/ask` unions semantic with grep candidates; otherwise nothing changes. No cloud embeddings, no other model. Memoryfield exports carry the vector index when one exists.

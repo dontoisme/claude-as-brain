@@ -2,6 +2,7 @@
 date: {{date:YYYY-MM-DD}}
 tags: ["#person"]
 source: human
+summary: 
 ---
 
 # Name

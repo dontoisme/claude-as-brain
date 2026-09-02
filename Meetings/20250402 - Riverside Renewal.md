@@ -4,6 +4,8 @@ tags: ["#meeting", "#pricing", "#customer", "#example-seed"]
 source: human
 attendees: [Priya Nandakumar, You]
 related_areas: ["[[Areas/Pricing]]"]
+distilled_to: ['[[Areas/Pricing]]', 'bd:cab-ex3', 'bd:cab-ex5']
+distilled_on: '2026-09-02'
 ---
 
 # 20250402 — Riverside Renewal
