@@ -2,6 +2,7 @@
 date: 2025-01-08
 tags: ["#area", "#pricing", "#example-seed"]
 status: active
+uuid: ad573edc-5ed8-4c36-ba1b-d416aed1a426
 ---
 
 # Pricing

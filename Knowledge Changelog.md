@@ -28,6 +28,11 @@ Written automatically by `/save-to-brain`. Add entries by hand any time.
 
 <!-- Newest first. Add below this line. -->
 
+### 2026-09-02 — The vault can speak memoryfield
+**Category:** Project
+**Summary:** `/export-memoryfield` packages Resources/ and Areas/ as a spec-conformant zip (uuids written back, 8 KB pages split at `##`); `/import-memoryfield` quarantines incoming pages as `(imported, unverified)` and refuses a bad sha256.
+**Location:** [[Projects/Memoryfield Improvements Spec]]
+
 ### 2026-09-02 — Beads can run from a phone: remote sessions build bd and round-trip through issues.jsonl
 **Category:** Area
 **Summary:** The Dolt DB is a cache; `.beads/issues.jsonl` is the state. SessionStart hook builds `bd`, `/sync-todos` exports back. No need to commit the database.

@@ -49,4 +49,5 @@ Navigation hub. For the generated view of current state, see [[Dashboard]].
 **Retrieval** — `/ask` · `/thread` · `/prep` · `/brief`
 **Capture** — `/capture` · `/save-to-brain` · `/process-meeting` · `/daily-note`
 **Maintenance** — `/rebuild-dashboard` · `/sync-todos` · `/update-mocs` · `/link-check` · `/weekly-review` · `/ramp`
+**Interop** — `/export-memoryfield` · `/import-memoryfield`
 **Setup** — `/install`

@@ -1,6 +1,6 @@
 ---
 tags: ["#todos"]
-generated: 2026-09-02 02:40
+generated: 2026-09-02 03:05
 ---
 
 # ✅ Action Items
@@ -14,7 +14,6 @@ generated: 2026-09-02 02:40
 
 | Task | Owner | Source | Due | ID |
 |------|-------|--------|-----|-----|
-| Temporal retrieval — Phase A: index + scoring, grep only | You | [[Projects/Temporal Retrieval Spec]] | — | cab-7ll |
 | Memoryfield §2 — Provenance and confidence in frontmatter | You | [[Projects/Memoryfield Improvements Spec]] | — | cab-8fb |
 | Memoryfield §4 — Memory decay for beads memories | You | [[Projects/Memoryfield Improvements Spec]] | — | cab-b94 |
 | Revisit annual-only pricing for mid-market | You | [[Areas/Pricing]] | — | cab-ex2 |
@@ -24,7 +23,7 @@ generated: 2026-09-02 02:40
 
 | Task | Owner | Source | ID |
 |------|-------|--------|-----|
-| Memoryfield §7 — Export / import | Claude | [[Projects/Memoryfield Improvements Spec]] | cab-1mw |
+| Temporal retrieval — Phase A: index + scoring, grep only | Claude | [[Projects/Temporal Retrieval Spec]] | cab-7ll |
 
 ## 🤝 Blocked
 
@@ -50,8 +49,9 @@ generated: 2026-09-02 02:40
 
 ## ✅ Recently Closed
 
+- ~~Memoryfield §7 — Export / import~~ — closed 2026-09-02 (cab-1mw)
 - ~~Send Riverside the revised renewal terms~~ — closed 2025-04-09 (cab-ex5)
 
 ---
 
-*Generated 2026-09-02 02:40 · `bd ready` for the live view*
+*Generated 2026-09-02 03:05 · `bd ready` for the live view*

@@ -17,3 +17,9 @@ Thumbs.db
 .vscode/
 .idea/
 *.swp
+
+# Retrieval index — rebuilt by /reindex, never committed
+.index/
+
+# Memoryfield archives — outputs of /export-memoryfield
+*.memoryfield.zip

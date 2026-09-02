@@ -82,6 +82,8 @@ Never blur these. When you're reading between the lines, say you're reading betw
 
 **Surface disagreement.** If two notes conflict, that IS the answer — report both with dates and let the user resolve it. Do not silently prefer the recent one; a later note isn't automatically a decision to change course, and conflating "someone complained" with "we reversed the decision" is a serious error.
 
+**Label imported material.** `CLAUDE.md` lists quarantined folders under `retrieval.quarantine` (filled by `/import-memoryfield`). Any citation from one of those folders, or any note tagged `#imported`, carries the label `(imported, unverified)` — e.g. `Resources/Imported/soapstones/Agent Data Access.md (imported, unverified)`. Treat its claims the way you treat inference: report them as what the page says, never as what the user knows.
+
 **Note what's stale.** If the newest relevant note is four months old, say so. Age is information.
 
 **Include open commitments.** If beads has related open issues, mention them — an unresolved task often explains why a question is still live.
