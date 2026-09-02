@@ -16,7 +16,7 @@ Everything below serves that. If you take nothing else from this file: never fil
 python3 .claude/scripts/brain_index.py rank "<the question>" --k 12
 ```
 
-If `.index/brain.sqlite3` exists this returns candidates scored **relevance × recency × activation** ([[Projects/Temporal Retrieval Spec]] Part 2), each with an age label. Use it to order the pile, not to replace the sweep: a note the index scores low can still be the answer, and the index knows nothing about beads or MOCs.
+If `.index/brain.sqlite3` exists this returns candidates scored **relevance × recency × activation**. With embeddings on, relevance is **hybrid**: grep candidates and the top semantic matches are unioned and each note takes the higher of its two scores, so a note whose title never mentions the term is still found when its body clearly matches; the header says `hybrid (<model>)` or `grep only` ([[Projects/Temporal Retrieval Spec]] Part 2), each with an age label. Use it to order the pile, not to replace the sweep: a note the index scores low can still be the answer, and the index knows nothing about beads or MOCs.
 
 If it exits with "no index", say once — *"No retrieval index; grepping. `/reindex` builds one."* — and continue without it. Never stop on a missing index.
 

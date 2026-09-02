@@ -79,7 +79,7 @@ retrieval_mode: inline
 
 Switch by editing the value above. Rough guide: under ~200 notes, `inline` is genuinely better — spawn latency exceeds the benefit. Past ~500, `parallel` starts to win.
 
-**The index.** `/reindex` builds `.index/brain.sqlite3`, a gitignored, deletable accelerator. When it exists, `/ask` runs `python3 .claude/scripts/brain_index.py rank "<question>"` to get candidates scored by relevance × recency × activation, with age labels. When it doesn't, `/ask` greps as before and says so once. Either way the reading and the answer are yours; the index only orders the pile.
+**The index.** `/reindex` builds `.index/brain.sqlite3`, a gitignored, deletable accelerator. When it exists, `/ask` runs `python3 .claude/scripts/brain_index.py rank "<question>"` to get candidates scored by relevance × recency × activation, with age labels. When it doesn't, `/ask` greps as before and says so once. If a local `ollama` serves `nomic-embed-text`, `/reindex` embeds notes and `/ask` unions semantic and grep candidates; otherwise relevance is grep-based. No other embedding dependency, ever. Either way the reading and the answer are yours; the index only orders the pile.
 
 **Bumps.** Every note actually read to produce an answer gets `python3 .claude/scripts/brain_index.py bump <paths> --kind ask|thread|prep|brief`, and a note that just gained inbound wikilinks gets `bump --links-of <the new note> --kind wikilink`. A bump resets the note's recency clock and raises its activation, which is how a 60-day-old note you keep coming back to stays warm. Never bump from `/reindex`, `/link-check`, or `/rebuild-dashboard`; mechanical passes are not evidence of relevance.
 

@@ -26,7 +26,7 @@ What it does, per note:
 - **Splitting** — a note over 8 KB is split at `##` headings into `<title> (1 of N)` pages, each with a fresh uuid and an `x-cab.parent_uuid` pointing at the original. The split is export-only.
 - **Vault-specific keys** — `source`, `confidence`, `distilled_to`, `distilled_on`, and the vault-relative path move under an `x-cab` mapping rather than being dropped. The spec allows extra keys; a re-import can use them to find its way home.
 - **`index.md` and `listing.md`** — a short introduction (no catalogue, per the spec) and a page catalogue.
-- **No vector index.** The spec makes it optional and this vault has no local embeddings yet. When Temporal Phase D lands, include `nomic-embed-text-v1.5.sqlite3` if present.
+- **Vector index, when there is a local embedder.** If `ollama` serves `nomic-embed-text`, the zip also carries `<model>.sqlite3` in the spec's suggested schema, with each page embedded *as exported* (the spec requires the complete page file, frontmatter included, as the embedding input). Without an embedder the index is omitted; the spec makes it optional.
 
 The output zip lands in the vault root by default and is gitignored (`*.memoryfield.zip`).
 

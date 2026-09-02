@@ -191,6 +191,47 @@ def split_body(body: str, limit: int) -> list[str]:
     return chunks or [body]
 
 
+def build_vector_index(pages: list[tuple[str, str]]) -> Path | None:
+    """Write <model>.sqlite3 in the spec's suggested schema if a local embedder is available.
+
+    The spec says the embedding input MUST be the complete page file (frontmatter
+    included), so pages are embedded here as exported, not copied from the
+    vault's own index. Returns None, silently, when there is no embedder.
+    """
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    try:
+        from brain_index import Embedder, pack
+    except ImportError:
+        return None
+    embedder = Embedder.detect()
+    if not embedder:
+        return None
+    import json as _json
+    import sqlite3
+    import tempfile
+    tmp = Path(tempfile.mkdtemp(prefix="memoryfield-")) / f"{embedder.name}.sqlite3"
+    conn = sqlite3.connect(tmp)
+    conn.executescript(
+        "CREATE TABLE pages (filename TEXT PRIMARY KEY, frontmatter JSON NOT NULL, last_modified DATETIME NOT NULL,"
+        " sha256_hash BLOB NOT NULL, embedding BLOB NOT NULL);"
+    )
+    now = dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    for fname, content in pages:
+        fm, _, _ = split_frontmatter(content)
+        try:
+            vec = embedder.embed("search_document: " + content[:PAGE_LIMIT])
+        except Exception as e:  # noqa: BLE001
+            print(f"warning: embedding failed for {fname}: {e}; omitting vector index", file=sys.stderr)
+            conn.close()
+            tmp.unlink(missing_ok=True)
+            return None
+        conn.execute("INSERT INTO pages VALUES (?, ?, ?, ?, ?)",
+                     (fname, _json.dumps(fm, default=str), now, hashlib.sha256(content.encode("utf-8")).digest(), pack(vec)))
+    conn.commit()
+    conn.close()
+    return tmp
+
+
 def collect_notes(vault: Path, folders: list[str]) -> list[Path]:
     notes: list[Path] = []
     for folder in folders:
@@ -297,11 +338,15 @@ def cmd_export(args: argparse.Namespace) -> int:
     )
 
     out.parent.mkdir(parents=True, exist_ok=True)
+    vec_file = build_vector_index(pages)
     with zipfile.ZipFile(out, "w", compression=zipfile.ZIP_DEFLATED) as zf:
         zf.writestr("index.md", index_md)
         zf.writestr("listing.md", listing_md)
         for fname, content in pages:
             zf.writestr(fname, content)
+        if vec_file:
+            zf.write(vec_file, vec_file.name)
+            vec_file.unlink()
 
     digest = sha256_file(out)
     print(f"exported {len(pages)} page(s) from {len(notes)} note(s) in {', '.join(folders)}")
@@ -309,7 +354,7 @@ def cmd_export(args: argparse.Namespace) -> int:
         print(f"  split {split_count} note(s) over {PAGE_LIMIT} bytes into numbered pages")
     if written_back:
         print(f"  wrote a new uuid back into {written_back} source note(s)")
-    print("  no vector index (no local embeddings)")
+    print(f"  vector index: {vec_file.name}" if vec_file else "  no vector index (no local embeddings)")
     print(f"  {out}")
     print(f"  sha256  {digest}")
     return 0

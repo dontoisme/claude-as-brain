@@ -28,6 +28,11 @@ Written automatically by `/save-to-brain`. Add entries by hand any time.
 
 <!-- Newest first. Add below this line. -->
 
+### 2026-09-02 — Semantic search, if and only if a local ollama is running
+**Category:** Project
+**Summary:** `/reindex` embeds notes with `nomic-embed-text` when ollama serves it and `/ask` unions semantic with grep candidates; otherwise nothing changes. No cloud embeddings, no other model. Memoryfield exports carry the vector index when one exists.
+**Location:** [[Projects/Temporal Retrieval Spec]]
+
 ### 2026-09-02 — Notes you keep coming back to stay warm; questions carry intent
 **Category:** Project
 **Summary:** Every note read to answer is a retrieval that resets its recency clock and raises ACT-R activation (Phase B). `/ask` classifies questions into current / decision / archival profiles from trigger phrases and adjusts decay accordingly (Phase C).

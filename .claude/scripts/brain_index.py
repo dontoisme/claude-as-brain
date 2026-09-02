@@ -30,8 +30,11 @@ import math
 import os
 import re
 import sqlite3
+import struct
 import subprocess
 import sys
+import urllib.error
+import urllib.request
 from pathlib import Path
 
 import yaml
@@ -71,6 +74,10 @@ def classify(question: str) -> tuple[str, str | None]:
 SOURCE_MULT = {"human": 1.0, "mixed": 0.95, "inferred": 0.85, "external": 0.7}
 SCHEMA_VERSION = "2"
 ACTIVATION_D = 0.5
+EMBED_CHARS = 8000            # spec: cap ~8k chars; longer notes embed the first 8k plus summary, flagged truncated
+OLLAMA_URL = os.environ.get("OLLAMA_HOST", "http://localhost:11434").rstrip("/")
+EMBED_MODEL_PREFIX = "nomic-embed-text"
+SEMANTIC_TOP = 25             # semantic candidates unioned with grep candidates
 STOPWORDS = set("""a an and are as at be by for from has have how in is it its of on or that the this to was we
 what whats when where which who why with our your you i me my about going latest status did do does
 has have anyone ever mentioned mention know anything something things there here been being""".split())
@@ -265,6 +272,86 @@ def open_index(vault: Path, create: bool = False) -> sqlite3.Connection | None:
     return conn
 
 
+# -------------------------------------------------------------- embeddings
+
+class Embedder:
+    """nomic-embed-text via a local ollama, or a deterministic stand-in for tests.
+
+    BRAIN_EMBED=off   never embed (grep + decay only)
+    BRAIN_EMBED=fake  hashed bag-of-words vectors; for exercising the plumbing, not for real retrieval
+    unset             use ollama if it is running and serves a nomic-embed-text model
+    """
+
+    def __init__(self, name: str, dims: int, fake: bool = False):
+        self.name, self.dims, self.fake = name, dims, fake
+
+    @classmethod
+    def detect(cls) -> "Embedder | None":
+        mode = os.environ.get("BRAIN_EMBED", "").strip().lower()
+        if mode == "off":
+            return None
+        if mode == "fake":
+            return cls("fake-bow-v0", 256, fake=True)
+        try:
+            req = urllib.request.Request(f"{OLLAMA_URL}/api/tags")
+            with urllib.request.urlopen(req, timeout=3) as r:  # noqa: S310 — loopback only
+                tags = json.loads(r.read().decode())
+        except (urllib.error.URLError, OSError, ValueError, TimeoutError):
+            return None
+        names = [m.get("name", "") for m in tags.get("models", [])]
+        hit = next((n for n in names if n.startswith(EMBED_MODEL_PREFIX)), None)
+        if not hit:
+            return None
+        e = cls(hit[:-len(":latest")] if hit.endswith(":latest") else hit, 0)
+        try:
+            e.dims = len(e.embed("search_document: probe"))
+        except Exception:  # noqa: BLE001
+            return None
+        return e if e.dims else None
+
+    def embed(self, text: str) -> list[float]:
+        if self.fake:
+            return self._fake(text)
+        payload = json.dumps({"model": self.name, "prompt": text}).encode()
+        req = urllib.request.Request(f"{OLLAMA_URL}/api/embeddings", data=payload, headers={"Content-Type": "application/json"})
+        with urllib.request.urlopen(req, timeout=120) as r:  # noqa: S310
+            return list(json.loads(r.read().decode()).get("embedding") or [])
+
+    def _fake(self, text: str) -> list[float]:
+        v = [0.0] * self.dims
+        for tok in re.findall(r"[a-z0-9]+", text.lower()):
+            tok = re.sub(r"(ing|ies|es|ed|s)$", "", tok) if len(tok) > 4 else tok
+            if len(tok) < 3:
+                continue
+            h = int(hashlib.md5(tok.encode()).hexdigest(), 16)
+            v[h % self.dims] += 1.0
+        n = math.sqrt(sum(x * x for x in v)) or 1.0
+        return [x / n for x in v]
+
+
+def pack(vec: list[float]) -> bytes:
+    return struct.pack(f"<{len(vec)}f", *vec)
+
+
+def unpack(blob: bytes) -> list[float]:
+    return list(struct.unpack(f"<{len(blob) // 4}f", blob))
+
+
+def cosine(a: list[float], b: list[float]) -> float:
+    dot = sum(x * y for x, y in zip(a, b))
+    na = math.sqrt(sum(x * x for x in a)) or 1.0
+    nb = math.sqrt(sum(x * x for x in b)) or 1.0
+    return dot / (na * nb)
+
+
+def embed_input(body: str, summary: str | None) -> tuple[str, bool]:
+    """The text a note is embedded from; True if it had to be truncated."""
+    head = "search_document: " + (f"{summary}\n\n" if summary else "")
+    if len(body) <= EMBED_CHARS:
+        return head + body, False
+    return head + body[:EMBED_CHARS], True
+
+
 # ----------------------------------------------------------------- reindex
 
 def cmd_reindex(args: argparse.Namespace) -> int:
@@ -273,9 +360,12 @@ def cmd_reindex(args: argparse.Namespace) -> int:
     assert conn is not None
     gdates = git_dates(vault)
     dirty = git_dirty(vault)
-    existing = {r["path"]: r for r in conn.execute("SELECT path, content_hash FROM notes")}
+    embedder = Embedder.detect()
+    prev_model = (conn.execute("SELECT value FROM meta WHERE key='embed_model'").fetchone() or [None])[0]
+    model_changed = bool(embedder) and prev_model != embedder.name
+    existing = {r["path"]: r for r in conn.execute("SELECT path, content_hash, embedding IS NOT NULL AS has_emb FROM notes")}
     seen: set[str] = set()
-    added = updated = unchanged = truncated = 0
+    added = updated = unchanged = truncated = embedded = 0
 
     for path, rel in walk_vault(vault):
         seen.add(rel)
@@ -290,8 +380,12 @@ def cmd_reindex(args: argparse.Namespace) -> int:
         # (or never) is as old as its own date: line — a bulk import of last
         # year's meetings must not read as "written today".
         edited_since_first = first is not None and last is not None and last != first
+        note_type = infer_type(rel, fm)
         if fm_date(fm, "updated"):
             updated_at = fm_date(fm, "updated")
+        elif note_type in ("day", "meeting") and fm_date(fm, "date"):
+            # event-shaped: the event date is the clock, whatever git says about later touch-ups
+            updated_at = fm_date(fm, "date")
         elif rel in dirty:
             updated_at = fm_date(fm, "date") if last is None and fm_date(fm, "date") else mtime
         elif edited_since_first:
@@ -303,7 +397,7 @@ def cmd_reindex(args: argparse.Namespace) -> int:
             tags = [tags]
         row = {
             "path": rel,
-            "note_type": infer_type(rel, fm),
+            "note_type": note_type,
             "created": iso(created),
             "updated": iso(updated_at),
             "content_hash": h,
@@ -331,6 +425,17 @@ def cmd_reindex(args: argparse.Namespace) -> int:
             conn.execute("UPDATE notes SET note_type=:note_type, created=:created, updated=:updated, summary=:summary,"
                          " title=:title, status=:status, tags=:tags, source=:source, confidence=:confidence WHERE path=:path", row)
             unchanged += 1
+        if embedder and (rel not in existing or existing[rel]["content_hash"] != h or not existing[rel]["has_emb"] or model_changed):
+            text_in, was_truncated = embed_input(body, row["summary"])
+            try:
+                vec = embedder.embed(text_in)
+            except Exception as e:  # noqa: BLE001 — an ollama hiccup leaves the row grep-only rather than aborting the pass
+                print(f"embedding failed for {rel}: {e}", file=sys.stderr)
+                vec = []
+            if vec:
+                conn.execute("UPDATE notes SET embedding=? WHERE path=?", (pack(vec), rel))
+                embedded += 1
+                truncated += int(was_truncated)
 
     removed = 0
     for rel in set(existing) - seen:
@@ -338,12 +443,18 @@ def cmd_reindex(args: argparse.Namespace) -> int:
         conn.execute("DELETE FROM retrievals WHERE path=?", (rel,))
         removed += 1
 
-    conn.execute("INSERT OR REPLACE INTO meta (key, value) VALUES ('embeddings', 'off')")
+    if embedder:
+        conn.execute("INSERT OR REPLACE INTO meta (key, value) VALUES ('embeddings', 'on')")
+        conn.execute("INSERT OR REPLACE INTO meta (key, value) VALUES ('embed_model', ?)", (embedder.name,))
+        conn.execute("INSERT OR REPLACE INTO meta (key, value) VALUES ('embed_dims', ?)", (str(embedder.dims),))
+    else:
+        conn.execute("INSERT OR REPLACE INTO meta (key, value) VALUES ('embeddings', 'off')")
     conn.execute("INSERT OR REPLACE INTO meta (key, value) VALUES ('reindexed_at', ?)", (iso(now_utc()),))
     conn.commit()
     total = conn.execute("SELECT COUNT(*) FROM notes").fetchone()[0]
+    emb = f"embeddings on ({embedder.name}, {embedded} embedded)" if embedder else "embeddings off"
     print(f"reindexed {total} notes: {added} added, {updated} updated, {removed} removed, {truncated} truncated, "
-          f"{unchanged} unchanged · embeddings off · {INDEX_REL}")
+          f"{unchanged} unchanged · {emb} · {INDEX_REL}")
     return 0
 
 
@@ -410,6 +521,24 @@ def cmd_rank(args: argparse.Namespace) -> int:
         args.profile, trigger = classify(args.query)
     types = {x.strip().lower() for x in args.types.split(",")} if args.types else None
     now = now_utc()
+    # semantic candidates (Phase D): cosine over stored vectors, min-max normalized across the top N
+    semantic: dict[str, float] = {}
+    emb_on = (conn.execute("SELECT value FROM meta WHERE key='embeddings'").fetchone() or ["off"])[0] == "on"
+    embedder = Embedder.detect() if emb_on and not args.no_embeddings else None
+    if embedder:
+        try:
+            qvec = embedder.embed("search_query: " + args.query)
+        except Exception as e:  # noqa: BLE001
+            print(f"query embedding failed ({e}); grep only", file=sys.stderr)
+            qvec = []
+        if qvec:
+            sims = sorted(((cosine(qvec, unpack(r["embedding"])), r["path"])
+                           for r in conn.execute("SELECT path, embedding FROM notes WHERE embedding IS NOT NULL")), reverse=True)
+            top = [s for s in sims[:SEMANTIC_TOP] if s[0] > 0]
+            if top:
+                hi, lo = top[0][0], top[-1][0]
+                for s, path in top:
+                    semantic[path] = 1.0 if hi == lo else (s - lo) / (hi - lo)
     cands = []
     for note in conn.execute("SELECT * FROM notes"):
         if types and note["note_type"] not in types:
@@ -421,19 +550,21 @@ def cmd_rank(args: argparse.Namespace) -> int:
         _, body = split_frontmatter(text)
         hits = count_hits(body, terms)
         title_hit = count_hits(note["title"] or "", terms) + count_hits(note["summary"] or "", terms) + count_hits(note["path"], terms)
-        if hits == 0 and title_hit == 0:
+        sem = semantic.get(note["path"])
+        if hits == 0 and title_hit == 0 and sem is None:
             continue
         density = hits / max(note["word_count"] or 1, 50) * 100.0
-        cands.append([note, hits, title_hit, density])
+        cands.append([note, hits, title_hit, density, sem])
     if not cands:
-        print(json.dumps([]) if args.json else "no candidates")
+        print(json.dumps({"profile": args.profile, "trigger": trigger, "terms": terms, "results": []}) if args.json else "no candidates")
         return 0
     max_density = max(c[3] for c in cands) or 1.0
     results = []
-    for note, hits, title_hit, density in cands:
+    for note, hits, title_hit, density, sem in cands:
         tags = json.loads(note["tags"] or "[]")
         source = (note["source"] or "").lower() or None
-        relevance = min(1.0, density / max_density + (0.3 if title_hit else 0.0)) * SOURCE_MULT.get(source or "human", 1.0)
+        grep_rel = min(1.0, density / max_density + (0.3 if title_hit else 0.0)) if (hits or title_hit) else 0.0
+        relevance = max(grep_rel, sem or 0.0) * SOURCE_MULT.get(source or "human", 1.0)
         act, refs, last_ref = activation(conn, note["path"], now)
         updated = parse_ts(note["updated"]) or now
         clock = max(updated, last_ref) if last_ref else updated  # a retrieval resets the recency clock
@@ -451,6 +582,7 @@ def cmd_rank(args: argparse.Namespace) -> int:
             "ref_count": refs, "last_referenced": iso(last_ref) if last_ref else None,
             "stale": stale, "quarantined": quarantined, "updated": note["updated"],
             "source": source, "confidence": note["confidence"],
+            "grep_relevance": round(grep_rel, 3), "semantic": None if sem is None else round(sem, 3),
         })
     results.sort(key=lambda r: (-r["score"], -r["hits"], r["path"]))
     results = results[: args.k]
@@ -458,14 +590,16 @@ def cmd_rank(args: argparse.Namespace) -> int:
         print(json.dumps({"profile": args.profile, "trigger": trigger, "terms": terms, "results": results}, indent=2))
         return 0
     why = f" (matched \"{trigger}\")" if trigger else (" (default; no trigger matched)" if args.profile == "current" else "")
-    print(f"terms: {', '.join(terms)} · profile: {args.profile}{why} · {len(cands)} candidate(s)")
+    mode = f"hybrid ({embedder.name})" if embedder else "grep only"
+    print(f"terms: {', '.join(terms)} · profile: {args.profile}{why} · {mode} · {len(cands)} candidate(s)")
     for r in results:
         cited = "never cited" if not r["last_referenced"] else f"last cited {round((now - parse_ts(r['last_referenced'])).total_seconds()/86400)}d ago"
         label = f"({int(r['updated_days'])}d old · {cited} · {r['ref_count']} refs)"
         prov = {"external": "(external, unverified)"}.get(r["source"], f"({r['source']})" if r["source"] else "(source unset)")
         flags = f" {prov}" + (" [possibly stale]" if r["stale"] else "") + (" (imported, unverified)" if r["quarantined"] else "")
         print(f"{r['score']:.3f}  {r['path']}   {label}{flags}")
-        print(f"       relevance {r['relevance']:.2f} × recency {r['recency']:.2f} × activation {r['activation']:.2f} · {r['hits']} hits · {r['note_type']}")
+        sem = f" · semantic {r['semantic']:.2f}" if r["semantic"] is not None else ""
+        print(f"       relevance {r['relevance']:.2f} × recency {r['recency']:.2f} × activation {r['activation']:.2f} · {r['hits']} hits{sem} · {r['note_type']}")
     return 0
 
 
@@ -563,6 +697,7 @@ def main(argv: list[str] | None = None) -> int:
     k.add_argument("--profile", choices=["auto", *sorted(PROFILE_MULT)], default="auto",
                    help="intent profile; auto classifies from trigger phrases (Part 3), default current")
     k.add_argument("--types", help="comma-separated note types to include, e.g. area,person or meeting,day")
+    k.add_argument("--no-embeddings", action="store_true", help="grep-only even if the index has vectors")
     k.add_argument("--json", action="store_true")
     k.set_defaults(func=cmd_rank)
     b = sub.add_parser("bump", help="record that notes were read to answer, or newly linked to")
