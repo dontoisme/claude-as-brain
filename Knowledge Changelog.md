@@ -28,6 +28,11 @@ Written automatically by `/save-to-brain`. Add entries by hand any time.
 
 <!-- Newest first. Add below this line. -->
 
+### 2026-09-01 — Beads has two lifetimes: durable commitments and a throwaway execution graph
+**Category:** Area
+**Summary:** A spec decomposed into beads with a goal loop draining `bd ready` is a session-scale copy of the three layers. Routing of the pattern into Beads Guide, commands, daily note, and README is tracked as seven beads; the note waits in Inbox until they close.
+**Location:** [[Inbox/Ephemeral Beads Pattern]]
+
 ### 2026-09-02 — Weekly review proposes promotions and hunts contradictions; both specs complete
 **Category:** Project
 **Summary:** `brain_review.py promote` proposes memory/MOC/bead links from repetition and usage, never acts; `neighbors` pairs each week's notes with their nearest neighbours for a yes/no contradiction read that files a `contradiction` bead. First run on the seed filed cab-kly (Apr 18 vs Mar 12 pricing rationale). All 13 spec beads closed.
