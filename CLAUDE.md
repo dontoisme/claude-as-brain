@@ -58,6 +58,8 @@ Short operational facts that should be present in every session without being lo
 bd remember "Dana owns the billing roadmap" --key dana-billing
 ```
 
+After `bd remember`, record it as confirmed — `python3 .claude/scripts/memory_meta.py confirm <key>` (`--kind person` for facts about people, `--permanent` for things that can't go stale). Memories never expire on their own; `/brief` asks you to confirm, retire, or edit the ones past their ttl.
+
 These are auto-injected via `bd prime` at session start. **Proactively suggest this** when the user states a durable fact in passing — it costs one command and pays out in every future session. This is the highest-leverage habit in the system and the one users forget exists.
 
 ### If `bd` is not installed
@@ -96,11 +98,15 @@ Never delegate: `/capture` and `/brief` (speed is the feature), `/save-to-brain`
 Machine-read by the helper scripts in `.claude/scripts/`. Keep it valid YAML; explanations go here, not in the block.
 
 - `quarantine` — folders whose notes `/ask` labels `(imported, unverified)`. Appended to by `/import-memoryfield`; remove a folder once you've reviewed its pages.
+- `verify.skip_domains` / `verify.max_fetches` — `/verify` never fetches the listed domains and stops after the cap per run.
 - `half_life_days` — recency decay per note type, used by the index behind `/ask` (see [[Projects/Temporal Retrieval Spec]] Part 2). `inf` means no decay: state-shaped notes don't go stale by age, only by contradiction. `project` applies only once its `status:` is complete or archived; active projects never decay. Override any value here.
 
 ```yaml
 retrieval:
   quarantine: []
+  verify:
+    skip_domains: []
+    max_fetches: 30
   half_life_days:
     day: 7
     meeting: 21
@@ -185,6 +191,10 @@ Topic:    #your-domain, #your-domain/subtopic
 **Frontmatter** — every note gets it. At minimum `date` and `tags`.
 
 **Linking** — link generously. An unlinked note is nearly invisible, in Obsidian and to grep alike.
+
+**Provenance** — every note carries `source: human | inferred | external | mixed` (optional `confidence: high | medium | low`; defaults high for human, medium for inferred, low for external). In a `mixed` note, any paragraph you wrote that is not a restatement of what the user said ends with `^inferred`; a paragraph that is one may end with `^human`. Retrieval labels citations by source and never restates an inferred claim as fact: *"you noted an inference that…"*, not *"finance was worried about runway."*
+
+**Citations** — a note derived from a web page carries `sources:` (`url`, `fetched`, optional one-sentence `claim`). `/verify` refetches and flags claims the page no longer supports.
 
 ---
 

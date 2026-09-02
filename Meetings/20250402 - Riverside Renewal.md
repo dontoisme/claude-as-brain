@@ -1,6 +1,7 @@
 ---
 date: 2025-04-02
 tags: ["#meeting", "#pricing", "#customer", "#example-seed"]
+source: human
 attendees: [Priya Nandakumar, You]
 related_areas: ["[[Areas/Pricing]]"]
 ---

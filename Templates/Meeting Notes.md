@@ -1,6 +1,7 @@
 ---
 date: {{date:YYYY-MM-DD}}
 tags: ["#meeting"]
+source: mixed
 attendees: []
 related_areas: []
 related_projects: []

@@ -41,6 +41,14 @@ bd recall priya-renewals # full content by key
 bd forget priya-renewals # remove
 ```
 
+**Memories don't expire, so confirm them.** `bd` has no metadata on memories, so a committed sidecar (`.beads/memory-meta.jsonl`) records when each was last confirmed and how long it stays trusted (90 days; 60 for facts about people). `/brief` lists the overdue ones, five at a time, with three answers: confirm, retire, edit.
+
+```bash
+python3 .claude/scripts/memory_meta.py confirm priya-renewals --kind person   # after bd remember, or when it's still true
+python3 .claude/scripts/memory_meta.py confirm fiscal-year --permanent        # never ask again
+python3 .claude/scripts/memory_meta.py due                                    # what /brief will show
+```
+
 ---
 
 ## The Three Layers

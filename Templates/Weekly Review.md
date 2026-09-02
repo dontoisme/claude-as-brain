@@ -1,6 +1,7 @@
 ---
 date: {{date:YYYY-MM-DD}}
 tags: ["#weekly-review"]
+source: mixed
 week: {{date:gggg-[W]ww}}
 ---
 

@@ -18,6 +18,7 @@ Before writing a note, ask whether it even *is* a note.
 
 ```bash
 bd remember "<fact>" --key <key>
+python3 .claude/scripts/memory_meta.py confirm <key>      # starts its 90-day confirm clock; --kind person → 60
 ```
 
 **Don't write three paragraphs around a one-line fact.** A note requires opening; a memory arrives automatically. Getting this wrong is the most common way this system accumulates weight without value.
@@ -47,6 +48,11 @@ New standalone note:
 date: YYYY-MM-DD
 tags: ["#insight", "<topic>"]
 type: capture
+source: human | inferred | external | mixed
+sources:            # only when derived from a fetched page
+  - url: https://…
+    fetched: YYYY-MM-DD
+    claim: "the one sentence this URL supports"
 ---
 
 # [Topic in their words]
@@ -70,7 +76,9 @@ type: capture
 *Captured YYYY-MM-DD*
 ```
 
-Appending to an existing Area note instead? Skip the frontmatter, add a dated `###` section under Insights.
+**Set `source:` honestly.** `human` when the note restates what the user said this session. `inferred` when you synthesized it. `external` when it came from a page you fetched or text they pasted — and then fill `sources:` with the URL, today's date as `fetched`, and, when you can, the one-sentence `claim` that URL supports so `/verify` can re-check it later. `mixed` when a note has both; in that case end every paragraph you concluded with `^inferred`.
+
+Appending to an existing Area note instead? Skip the frontmatter, add a dated `###` section under Insights — and if any of it is your inference rather than their words, end that paragraph with `^inferred`.
 
 **Write for retrieval.** The test is not "is this accurate" but "would I find this when I need it?" Use the words they'd search for, not the most precise ones. Name specific people, dates, and systems — those are what grep catches.
 
@@ -118,7 +126,7 @@ Drop the lines that don't apply.
 - **Prefer new notes** when content stands alone; append when it deepens an existing thread
 - **Descriptive filenames** — `Notes.md` is where things go to die
 - **One home per idea**
-- **Say what you inferred** — if you're synthesizing beyond what was actually discussed, mark it
+- **Say what you inferred** — `source: inferred` on the note, or `^inferred` on the paragraph in a mixed note. This is a memory system; an unmarked inference becomes a fact next month.
 
 ## If `bd` Isn't Installed
 

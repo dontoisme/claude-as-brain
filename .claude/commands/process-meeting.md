@@ -36,6 +36,8 @@ Substitute `{{date:...}}` values; never write the literal string.
 
 **Attribute claims to people.** "Dana thinks the timeline is at risk" is far more useful in six months than "the timeline is at risk."
 
+**Provenance.** The template sets `source: mixed`, because a processed meeting note is their material shaped by you. Anything you concluded rather than transcribed — "this probably means finance was already worried", a reading of someone's tone, a gap you filled — ends with `^inferred`. Attributed statements may end with `^human`. `/ask` uses these to keep your interpretation from being replayed later as what was said.
+
 **Mark uncertainty inline.** `<!-- unclear from notes -->` beats a confident guess. You are writing this into a memory system; a plausible invention here is indistinguishable from a fact later.
 
 ## Step 3: Commitments Become Beads
@@ -87,7 +89,8 @@ Check what exists before linking — a wikilink to a nonexistent note is a broke
 ## Step 5: Verify Before Reporting
 
 - ✓ File in `Meetings/` named `YYYYMMDD - Name.md`
-- ✓ Frontmatter complete (date, attendees, tags)
+- ✓ Frontmatter complete (date, attendees, tags, `source: mixed`)
+- ✓ Your inferences end with `^inferred`
 - ✓ Every wikilink points at a real note
 - ✓ Every commitment is a bead with a source reference
 - ✓ Dependencies modeled where they exist

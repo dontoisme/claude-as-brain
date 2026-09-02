@@ -102,6 +102,8 @@ Never blur these. When you're reading between the lines, say you're reading betw
 
 **Surface disagreement.** If two notes conflict, that IS the answer — report both with dates and let the user resolve it. Do not silently prefer the recent one; a later note isn't automatically a decision to change course, and conflating "someone complained" with "we reversed the decision" is a serious error.
 
+**Label provenance.** Every note carries `source:` in its frontmatter and the rank output echoes it. Suffix each citation: `(human)`, `(inferred)`, `(mixed)`, or `(external, unverified)`. Inside a `mixed` note, a paragraph ending `^inferred` is Claude's earlier conclusion, not the user's record. **Never restate an inferred claim as fact.** Say *"you noted an inference that finance was already worried about runway"*, never *"finance was worried about runway."* The index already down-weights inferred (×0.85) and external (×0.7) notes in relevance; it never filters them.
+
 **Label imported material.** `CLAUDE.md` lists quarantined folders under `retrieval.quarantine` (filled by `/import-memoryfield`). Any citation from one of those folders, or any note tagged `#imported`, carries the label `(imported, unverified)` — e.g. `Resources/Imported/soapstones/Agent Data Access.md (imported, unverified)`. Treat its claims the way you treat inference: report them as what the page says, never as what the user knows.
 
 **Note what's stale.** If the newest relevant note is four months old, say so. Age is information.

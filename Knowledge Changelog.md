@@ -28,6 +28,11 @@ Written automatically by `/save-to-brain`. Add entries by hand any time.
 
 <!-- Newest first. Add below this line. -->
 
+### 2026-09-02 — Notes now say who wrote them, what they rest on, and when a memory should be re-checked
+**Category:** Project
+**Summary:** `source: human|inferred|external|mixed` on every note with `^inferred` markers; `sources:` URLs re-checked by `/verify`; beads memories get a confirm clock in `.beads/memory-meta.jsonl` that `/brief` surfaces.
+**Location:** [[Projects/Memoryfield Improvements Spec]]
+
 ### 2026-09-02 — /ask now knows how old a note is
 **Category:** Project
 **Summary:** `/reindex` builds a deletable sqlite index; `/ask` reranks by relevance × recency (per-type half-lives, none for state-shaped notes) and cites with age labels. A bulk-committed note keeps its own `date:` rather than reading as written today.

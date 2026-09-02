@@ -3,6 +3,7 @@
 .beads/*
 !.beads/issues.jsonl
 !.beads/README.md
+!.beads/memory-meta.jsonl
 
 # Obsidian — workspace state is per-machine, config is shared
 .obsidian/workspace.json

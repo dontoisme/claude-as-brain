@@ -44,6 +44,8 @@ DEFAULT_HALF_LIFE: dict[str, float] = {
     "area": math.inf, "resource": math.inf, "person": math.inf, "moc": math.inf, "other": math.inf,
 }
 PROFILE_MULT = {"current": 0.5, "decision": 1.0, "archival": math.inf}
+SOURCE_MULT = {"human": 1.0, "mixed": 0.95, "inferred": 0.85, "external": 0.7}
+SCHEMA_VERSION = "2"
 ACTIVATION_D = 0.5
 STOPWORDS = set("""a an and are as at be by for from has have how in is it its of on or that the this to was we
 what whats when where which who why with our your you i me my about going latest status did do does
@@ -63,7 +65,9 @@ CREATE TABLE IF NOT EXISTS notes (
   title           TEXT,
   status          TEXT,
   tags            TEXT,
-  word_count      INTEGER DEFAULT 0
+  word_count      INTEGER DEFAULT 0,
+  source          TEXT,
+  confidence      TEXT
 );
 CREATE TABLE IF NOT EXISTS retrievals (
   path TEXT NOT NULL,
@@ -215,6 +219,18 @@ def open_index(vault: Path, create: bool = False) -> sqlite3.Connection | None:
     conn = sqlite3.connect(path)
     conn.row_factory = sqlite3.Row
     conn.executescript(SCHEMA)
+    row = conn.execute("SELECT value FROM meta WHERE key='schema_version'").fetchone()
+    version = row["value"] if row else None
+    if version != SCHEMA_VERSION:
+        if not create:
+            print("index schema is out of date — run /reindex", file=sys.stderr)
+            conn.close()
+            return None
+        # notes are derivable from the files; retrievals are not, so keep them
+        conn.execute("DROP TABLE notes")
+        conn.executescript(SCHEMA)
+        conn.execute("INSERT OR REPLACE INTO meta (key, value) VALUES ('schema_version', ?)", (SCHEMA_VERSION,))
+        conn.commit()
     return conn
 
 
@@ -265,22 +281,24 @@ def cmd_reindex(args: argparse.Namespace) -> int:
             "status": str(fm["status"]) if fm.get("status") else None,
             "tags": json.dumps([str(t) for t in tags]),
             "word_count": len(body.split()),
+            "source": str(fm["source"]).strip().lower() if fm.get("source") else None,
+            "confidence": str(fm["confidence"]).strip().lower() if fm.get("confidence") else None,
         }
         if rel not in existing:
             conn.execute(
-                "INSERT INTO notes (path, note_type, created, updated, content_hash, summary, title, status, tags, word_count)"
-                " VALUES (:path, :note_type, :created, :updated, :content_hash, :summary, :title, :status, :tags, :word_count)", row)
+                "INSERT INTO notes (path, note_type, created, updated, content_hash, summary, title, status, tags, word_count, source, confidence)"
+                " VALUES (:path, :note_type, :created, :updated, :content_hash, :summary, :title, :status, :tags, :word_count, :source, :confidence)", row)
             added += 1
         elif existing[rel]["content_hash"] != h:
             conn.execute(
                 "UPDATE notes SET note_type=:note_type, created=:created, updated=:updated, content_hash=:content_hash,"
-                " summary=:summary, title=:title, status=:status, tags=:tags, word_count=:word_count, embedding=NULL"
-                " WHERE path=:path", row)
+                " summary=:summary, title=:title, status=:status, tags=:tags, word_count=:word_count, embedding=NULL,"
+                " source=:source, confidence=:confidence WHERE path=:path", row)
             updated += 1
         else:
             # metadata can move without the body changing (a date edit, a git commit)
             conn.execute("UPDATE notes SET note_type=:note_type, created=:created, updated=:updated, summary=:summary,"
-                         " title=:title, status=:status, tags=:tags WHERE path=:path", row)
+                         " title=:title, status=:status, tags=:tags, source=:source, confidence=:confidence WHERE path=:path", row)
             unchanged += 1
 
     removed = 0
@@ -377,7 +395,8 @@ def cmd_rank(args: argparse.Namespace) -> int:
     results = []
     for note, hits, title_hit, density in cands:
         tags = json.loads(note["tags"] or "[]")
-        relevance = min(1.0, density / max_density + (0.3 if title_hit else 0.0))
+        source = (note["source"] or "").lower() or None
+        relevance = min(1.0, density / max_density + (0.3 if title_hit else 0.0)) * SOURCE_MULT.get(source or "human", 1.0)
         updated = parse_ts(note["updated"]) or now
         age_days = max((now - updated).total_seconds() / 86400.0, 0.0)
         hl = half_life_for(note, cfg, args.profile, tags)
@@ -392,6 +411,7 @@ def cmd_rank(args: argparse.Namespace) -> int:
             "note_type": note["note_type"], "age_days": round(age_days, 1), "half_life": None if not math.isfinite(hl) else hl,
             "ref_count": refs, "last_referenced": iso(last_ref) if last_ref else None,
             "stale": stale, "quarantined": quarantined, "updated": note["updated"],
+            "source": source, "confidence": note["confidence"],
         })
     results.sort(key=lambda r: (-r["score"], -r["hits"], r["path"]))
     results = results[: args.k]
@@ -402,7 +422,8 @@ def cmd_rank(args: argparse.Namespace) -> int:
     for r in results:
         cited = "never cited" if not r["last_referenced"] else f"last cited {round((now - parse_ts(r['last_referenced'])).total_seconds()/86400)}d ago"
         label = f"({int(r['age_days'])}d old · {cited} · {r['ref_count']} refs)"
-        flags = (" [possibly stale]" if r["stale"] else "") + (" (imported, unverified)" if r["quarantined"] else "")
+        prov = {"external": "(external, unverified)"}.get(r["source"], f"({r['source']})" if r["source"] else "(source unset)")
+        flags = f" {prov}" + (" [possibly stale]" if r["stale"] else "") + (" (imported, unverified)" if r["quarantined"] else "")
         print(f"{r['score']:.3f}  {r['path']}   {label}{flags}")
         print(f"       relevance {r['relevance']:.2f} × recency {r['recency']:.2f} × activation {r['activation']:.2f} · {r['hits']} hits · {r['note_type']}")
     return 0

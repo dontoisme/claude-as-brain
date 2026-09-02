@@ -1,6 +1,7 @@
 ---
 date: 2025-03-12
 tags: ["#meeting", "#pricing", "#example-seed"]
+source: human
 attendees: [Dana Whitfield, Marcus Ellery, You]
 related_areas: ["[[Areas/Pricing]]"]
 ---

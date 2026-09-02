@@ -28,6 +28,12 @@ bd list --due-before tomorrow      # due today
 
 **Inbox** — count items in `Inbox/`. Mention only if over five.
 
+**Memories to confirm** —
+```bash
+python3 .claude/scripts/memory_meta.py due --limit 5
+```
+Memories past their ttl (default 90 days, 60 for people), oldest first, capped at five. Skip the section when it's empty.
+
 **Today's meetings** — anything already captured in `Days/` or `Meetings/`. Don't invent a calendar you can't see; if there's no meeting info in the vault, skip the section silently.
 
 ## Step 2: Write It
@@ -48,7 +54,13 @@ bd list --due-before tomorrow      # due today
 - Waiting on Legal since Mar 4 (cab-22) — worth chasing
 
 **Inbox:** 7 items
+
+### Memories to confirm
+- `dana-billing` — "Dana owns the billing roadmap" — confirmed 94 days ago
+  confirm · retire · edit
 ```
+
+For each memory the user answers with one word. **confirm** → `python3 .claude/scripts/memory_meta.py confirm <key>`. **retire** → `python3 .claude/scripts/memory_meta.py retire <key>` (runs `bd forget`). **edit** → `bd remember "<new text>" --key <key>` then confirm it. Anything they don't answer stays listed tomorrow; nothing expires on its own — a memory is injected into every session until someone retires it, by design.
 
 Then **one line** of orientation. Not analysis — a pointer:
 

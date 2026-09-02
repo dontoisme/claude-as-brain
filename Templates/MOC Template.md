@@ -1,6 +1,7 @@
 ---
 date: {{date:YYYY-MM-DD}}
 tags: ["#moc"]
+source: mixed
 updated: {{date:YYYY-MM-DD}}
 ---
 

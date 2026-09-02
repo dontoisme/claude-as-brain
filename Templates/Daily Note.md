@@ -1,6 +1,7 @@
 ---
 date: {{date:YYYY-MM-DD}}
 tags: ["#daily"]
+source: human
 ---
 
 # {{date:YYYY-MM-DD}} — {{date:dddd}}
