@@ -49,6 +49,8 @@ Commitments. Anything with an owner, a state, or a dependency. Retrieved with `b
 
 `Todos.md` is a **generated mirror** of beads — regenerate it with `/sync-todos` after any write. Never hand-edit it.
 
+**The tracked state is `.beads/issues.jsonl`, not the database.** `/sync-todos` exports to it. In a remote or ephemeral session, run `/sync-todos` before pushing or the beads you wrote are gone with the container. A SessionStart hook (`.claude/hooks/setup-beads.sh`) builds `bd` and loads the JSONL when a session starts without it.
+
 ### Layer 3 — Beads memories (`bd remember`)
 Short operational facts that should be present in every session without being looked up. *"Fiscal year starts in April." "Dana owns the billing roadmap."*
 
@@ -84,6 +86,19 @@ This is not a style preference. A subagent that reports *"the decision was annua
 Subagents quote verbatim with file paths. You interpret. And synthesis stays in the main thread for a second reason: it's the only context that knows this conversation.
 
 Never delegate: `/capture` and `/brief` (speed is the feature), `/save-to-brain` (needs session context a subagent cannot see), `/daily-note` (one file).
+
+---
+
+## Retrieval Config
+
+Machine-read by the helper scripts in `.claude/scripts/`. Keep it valid YAML; explanations go here, not in the block.
+
+- `quarantine` — folders whose notes `/ask` labels `(imported, unverified)`. Appended to by `/import-memoryfield`; remove a folder once you've reviewed its pages.
+
+```yaml
+retrieval:
+  quarantine: []
+```
 
 ---
 

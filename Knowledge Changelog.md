@@ -28,6 +28,21 @@ Written automatically by `/save-to-brain`. Add entries by hand any time.
 
 <!-- Newest first. Add below this line. -->
 
+### 2026-09-02 — Beads can run from a phone: remote sessions build bd and round-trip through issues.jsonl
+**Category:** Area
+**Summary:** The Dolt DB is a cache; `.beads/issues.jsonl` is the state. SessionStart hook builds `bd`, `/sync-todos` exports back. No need to commit the database.
+**Location:** [[Areas/Claude-as-Brain]]
+
+### 2026-09-02 — bd 1.2.2 memories have no metadata fields
+**Category:** Project
+**Summary:** `bd remember` takes only `--key`, so Memoryfield §4 decay uses the committed sidecar fallback, not tags on the memory.
+**Location:** [[Projects/Memoryfield Improvements Spec]]
+
+### 2026-09-01 — Two retrieval specs filed: temporal scoring and memoryfield interop
+**Category:** Project
+**Summary:** Recency × relevance × activation over a deletable sqlite index; provenance, contradiction detection, memory decay, citations, memoryfield export/import. Tracked as beads under `spec:temporal` and `spec:memoryfield`.
+**Location:** [[Projects/Temporal Retrieval Spec]] · [[Projects/Memoryfield Improvements Spec]]
+
 ### 2025-04-18 — Conditional decisions need numeric triggers
 **Category:** Area
 **Summary:** "Revisit if churn moves" never fired because nobody defined "moves" — two signals accumulated with no revisit.

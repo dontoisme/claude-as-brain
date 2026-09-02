@@ -23,6 +23,16 @@ Use `--json`. Parsing the human-readable table is fragile and will break when th
 
 If `bd` isn't installed, **stop immediately and change nothing.** Say: *"No beads database — `Todos.md` is hand-maintained in this vault."* Overwriting a hand-maintained file with an empty render would destroy real work.
 
+## Step 1b: Persist to the Tracked Export
+
+The Dolt database under `.beads/` is a gitignored cache. The file git actually carries is `.beads/issues.jsonl`, and `bd` does **not** update it on its own. Every run of this command refreshes it:
+
+```bash
+bd export -o .beads/issues.jsonl --include-memories
+```
+
+`--include-memories` matters — memories are excluded from exports by default, and losing them silently is worse than losing tasks. Commit the file with whatever else changed. In a remote or ephemeral session (Claude Code on the web, mobile) this is the only thing standing between the beads you just created and the container being reclaimed.
+
 ## Step 2: Write the File
 
 ```markdown

@@ -29,6 +29,12 @@ Navigation hub. For the generated view of current state, see [[Dashboard]].
 - **[[People/README|People]]** — who's who
 - **[[Inbox/README|Inbox]]** — awaiting routing
 
+## Active Work
+
+- [[Areas/Claude-as-Brain]] — the vault as a product
+- [[Projects/Temporal Retrieval Spec]] — index, recency and usage scoring (`bd ready -l spec:temporal`)
+- [[Projects/Memoryfield Improvements Spec]] — provenance, contradictions, decay, interop (`bd ready -l spec:memoryfield`)
+
 ## Docs
 
 - [[START HERE]] — onboarding
