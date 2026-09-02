@@ -68,6 +68,16 @@ Then **one line** of orientation. Not analysis — a pointer:
 
 That's the whole brief.
 
+## After Writing: Bump
+
+The daily note you read for "Yesterday" was read to produce the brief. Record it, and nothing else — the brief lists beads, not notes:
+
+```bash
+python3 .claude/scripts/brain_index.py bump Days/YYYYMMDD.md --kind brief
+```
+
+Skip when there is no index.
+
 ## Judgment Calls
 
 **Don't list everything ready.** If `bd ready` returns fifteen items, show the top three or four by priority and say "+11 more." A wall of tasks is the thing people close the terminal to avoid.

@@ -22,7 +22,17 @@ If it exits with "no index", say once — *"No retrieval index; grepping. `/rein
 
 **Never filter on age.** The score reranks; it does not drop. A strong-match 90-day-old meeting must be able to beat a weak-match note from yesterday, and it can, because relevance is in the product.
 
-Profiles (`--profile current|decision|archival`) exist but classification is Phase C's job (`cab-7wb`). Until then: pass `archival` when the question is plainly historical ("has anyone ever", "did we ever"), `decision` for "what did we decide / why did we", and leave the default otherwise.
+**Intent profiles** ([[Projects/Temporal Retrieval Spec]] Part 3). The script classifies the question from trigger phrases and prints which one fired:
+
+| Profile | Triggers | Effect |
+|---|---|---|
+| `current` (default) | "what's going on with", "status of", "latest" | half-lives halved — steeper decay |
+| `decision` | "what did we decide", "why did we", "rationale" | no decay for notes tagged `decision`; normal otherwise |
+| `archival` | "has anyone ever", "did we ever", "history of" | no decay at all |
+
+The classifier is a phrase list, not a model. **Override it when it's wrong**: pass `--profile archival|decision|current` explicitly. When the output says "default; no trigger matched" and the question is plainly historical or about a rationale, pick the profile yourself. In `parallel` mode you may spend one Haiku call on the classification instead; inline, the phrase list plus your judgment is the "single cheap call" the spec asks for.
+
+`/thread` always uses `archival`. `/prep` runs `decision` over Areas and People and `current` over Meetings and Days.
 
 ## Step 1: Sweep Broadly
 
@@ -92,7 +102,7 @@ Lead with the answer. Not with your process, not with what you searched.
 Meetings/20250715 - Pricing Review.md   (48d old · last cited 3d ago · 6 refs)
 ```
 
-The label comes straight from the rank output. A note older than twice its half-life carries `[possibly stale]`; say so in the answer rather than silently treating it as current. The user must be able to open the file and check you.
+The label comes straight from the rank output; "last cited" is the note's most recent bump. A note older than twice its half-life carries `[possibly stale]`; say so in the answer rather than silently treating it as current. The user must be able to open the file and check you.
 
 **Mark inference explicitly.** There is a hard line between:
 - *"You decided X"* — the note says so
@@ -128,9 +138,15 @@ Prose, not bullet soup. This is a question being answered, not a report.
 - **Complex question → structure it,** but lead with the direct answer before the supporting detail.
 - **Always end with a pointer** to the two or three notes most worth opening.
 
-## Retrieval Bumps — Not Yet
+## Step 5: Bump What You Read
 
-Temporal Phase B (`cab-m6r`) will record every note you actually read to answer into the `retrievals` table so frequently-useful notes stay warm. Until it lands, do **not** write to the index from here.
+After answering, record every note you **read in full to produce the answer** — not every candidate the index listed:
+
+```bash
+python3 .claude/scripts/brain_index.py bump "Meetings/20250312 - Pricing Review.md" "Areas/Pricing.md" --kind ask
+```
+
+This is what keeps a 60-day-old note you keep returning to ahead of a 10-day-old note you never open: a bump resets the note's recency clock and raises its activation ([[Projects/Temporal Retrieval Spec]] Part 4). Skip it when there is no index. Never bump a note you only skimmed in grep output.
 
 ## If `bd` Isn't Installed
 

@@ -14,7 +14,11 @@ Related: do not mistake *someone raising a concern* for *a decision changing*. A
 
 ## Step 1: Collect Everything, Then Order It
 
-Sweep the same way `/ask` does — keywords, wikilink anchors, MOCs, tags, filenames, beads (`bd search "<topic>" --status all`, and `--desc-contains`).
+Sweep the same way `/ask` does — keywords, wikilink anchors, MOCs, tags, filenames, beads (`bd search "<topic>" --status all`, and `--desc-contains`). If the index exists, start with it in the **archival** profile, which switches recency decay off — a thread needs the six-month-old note as much as yesterday's:
+
+```bash
+python3 .claude/scripts/brain_index.py rank "<topic>" --profile archival --k 20
+```
 
 Then **date every hit**:
 
@@ -73,6 +77,14 @@ Close with:
 - **Where it stands** — the current position, stated plainly
 - **What's unresolved** — open questions and open beads
 - **What you'd flag** — e.g. *"the original rationale has been undermined twice and never revisited"*
+
+## After Reporting: Bump
+
+```bash
+python3 .claude/scripts/brain_index.py bump <every note you read in full> --kind thread
+```
+
+Same rule as `/ask`: read-to-answer, not listed-as-candidate.
 
 ## Special Cases
 

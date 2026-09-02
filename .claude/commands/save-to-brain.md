@@ -98,6 +98,12 @@ Three connections, all required:
 
 3. **Wikilinks in both directions** — the note links out, and at least one existing note links in. A note nothing points at is nearly invisible.
 
+4. **Bump the link targets** — every note the new note links to just gained an inbound link, which is evidence it still matters:
+   ```bash
+   python3 .claude/scripts/brain_index.py bump --links-of "<new note path>" --kind wikilink
+   ```
+   Skip when there is no index. Counted once per (source, target) pair, so re-running is safe.
+
 ## Step 6: Extract Any Commitments
 
 If the insight implies action:

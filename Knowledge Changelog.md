@@ -28,6 +28,11 @@ Written automatically by `/save-to-brain`. Add entries by hand any time.
 
 <!-- Newest first. Add below this line. -->
 
+### 2026-09-02 — Notes you keep coming back to stay warm; questions carry intent
+**Category:** Project
+**Summary:** Every note read to answer is a retrieval that resets its recency clock and raises ACT-R activation (Phase B). `/ask` classifies questions into current / decision / archival profiles from trigger phrases and adjusts decay accordingly (Phase C).
+**Location:** [[Projects/Temporal Retrieval Spec]]
+
 ### 2026-09-02 — Notes now say who wrote them, what they rest on, and when a memory should be re-checked
 **Category:** Project
 **Summary:** `source: human|inferred|external|mixed` on every note with `^inferred` markers; `sources:` URLs re-checked by `/verify`; beads memories get a confirm clock in `.beads/memory-meta.jsonl` that `/brief` surfaces.

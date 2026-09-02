@@ -85,6 +85,7 @@ Check what exists before linking — a wikilink to a nonexistent note is a broke
 2. **Projects** — link if it relates to active work.
 3. **People** — every attendee should have a `People/` note. Create missing ones from `Templates/Person.md`, and update the "I owe them / they owe me" sections from this meeting's commitments. **This is what makes `/prep` work later** — skip it and prep degrades to grep.
 4. **Today's daily note** — link the meeting under Meetings.
+5. **Bump the link targets** — `python3 .claude/scripts/brain_index.py bump --links-of "Meetings/YYYYMMDD - Name.md" --kind wikilink` (skip when there is no index). Areas and People this meeting links to just became warmer.
 
 ## Step 5: Verify Before Reporting
 
