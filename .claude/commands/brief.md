@@ -79,6 +79,7 @@ End with at most one suggestion, and only when it's earned:
 - Inbox over ten → "Worth a `/weekly-review`"
 - Meeting today with prior notes → "`/prep <meeting>` before that call?"
 - No daily note yet → "`/daily-note` to start today's"
+- Several ready P1/P2s with none already `calendar-scheduled` → "`/schedule-tasks` to block time for these?"
 
 One. Not a menu.
 

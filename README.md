@@ -148,7 +148,15 @@ Without it, the vault still works — task tracking falls back to hand-maintaine
 | `/capture` | Thought → Inbox, or straight to a task. Zero friction. |
 | `/save-to-brain` | Session insight → routed note, changelog, daily note |
 | `/process-meeting` | Raw notes → structured note + commitments as beads |
+| `/pull-transcript` | Fetch a meeting transcript via the Zoom MCP (or a local folder) and run it through `/process-meeting` |
 | `/daily-note` | Today's note, seeded with ready work and yesterday's carryover |
+
+### Daily Loop
+| | |
+|---|---|
+| `/start-day` | One table for the morning — meetings, ready tasks, what needs prep — then hands off to `/schedule-tasks` or `/prep` |
+| `/schedule-tasks` | Time-block ready beads onto the calendar (Motion-style), confirmed before anything is generated |
+| `/end-day` | Close the loop on today's note — close finished beads, decide what carries forward, seed tomorrow |
 
 ### Maintenance
 | | |
