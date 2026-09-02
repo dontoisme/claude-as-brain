@@ -18,6 +18,7 @@ Check for:
 - **Naming violations** — `Days/` not `YYYYMMDD.md`, `Meetings/` not `YYYYMMDD - Name.md`, generic names
 - **Literal `{{date:...}}` in notes** — a real bug; something wrote a template without substituting
 - **Empty notes**
+- **Dangling `distilled_to`** — an event note claims its content was extracted to a note or bead that doesn't exist. `python3 .claude/scripts/brain_index.py distilled-check` lists them; a note with a dangling target must not be allowed to decay as if it were banked.
 
 ## Step 2: Sort by What's Actually Wrong
 
@@ -28,6 +29,8 @@ Not all findings are problems. Rank honestly:
 - *Missing* — no match. Either the note was never written (the link was a promise) or it was deleted. Ask which.
 
 **Literal template syntax — always a bug.** Fix immediately.
+
+**Dangling `distilled_to` — always worth fixing.** Either the target was renamed (fix the link) or the extraction never happened (remove the key so the note shows up in `/weekly-review` again). Ask which.
 
 **Missing frontmatter — usually worth fixing.** Cheap, and it's what tags and dates depend on.
 

@@ -1,6 +1,10 @@
 ---
 date: {{date:YYYY-MM-DD}}
 tags: ["#daily"]
+source: human
+summary: 
+distilled_to: []
+distilled_on: 
 ---
 
 # {{date:YYYY-MM-DD}} — {{date:dddd}}

@@ -28,6 +28,61 @@ Written automatically by `/save-to-brain`. Add entries by hand any time.
 
 <!-- Newest first. Add below this line. -->
 
+### 2026-09-01 — Beads has two lifetimes: durable commitments and a throwaway execution graph
+**Category:** Area
+**Summary:** A spec decomposed into beads with a goal loop draining `bd ready` is a session-scale copy of the three layers. Routing of the pattern into Beads Guide, commands, daily note, and README is tracked as seven beads; the note waits in Inbox until they close.
+**Location:** [[Inbox/Ephemeral Beads Pattern]]
+
+### 2026-09-02 — Weekly review proposes promotions and hunts contradictions; both specs complete
+**Category:** Project
+**Summary:** `brain_review.py promote` proposes memory/MOC/bead links from repetition and usage, never acts; `neighbors` pairs each week's notes with their nearest neighbours for a yes/no contradiction read that files a `contradiction` bead. First run on the seed filed cab-kly (Apr 18 vs Mar 12 pricing rationale). All 13 spec beads closed.
+**Location:** [[Projects/Memoryfield Improvements Spec]] · [[Areas/Claude-as-Brain]]
+
+### 2026-09-02 — Weekly review distills instead of summarising
+**Category:** Project
+**Summary:** Event notes (Days, Meetings) get their durable content moved to Areas, memories, beads, or Resources, then are marked `distilled_to` so they can decay. `/brief` shows what's cooling off undistilled; `/link-check` catches dangling targets. Seed pricing thread distilled as the worked example.
+**Location:** [[Projects/Temporal Retrieval Spec]] · [[Areas/Pricing]]
+
+### 2026-09-02 — Semantic search, if and only if a local ollama is running
+**Category:** Project
+**Summary:** `/reindex` embeds notes with `nomic-embed-text` when ollama serves it and `/ask` unions semantic with grep candidates; otherwise nothing changes. No cloud embeddings, no other model. Memoryfield exports carry the vector index when one exists.
+**Location:** [[Projects/Temporal Retrieval Spec]]
+
+### 2026-09-02 — Notes you keep coming back to stay warm; questions carry intent
+**Category:** Project
+**Summary:** Every note read to answer is a retrieval that resets its recency clock and raises ACT-R activation (Phase B). `/ask` classifies questions into current / decision / archival profiles from trigger phrases and adjusts decay accordingly (Phase C).
+**Location:** [[Projects/Temporal Retrieval Spec]]
+
+### 2026-09-02 — Notes now say who wrote them, what they rest on, and when a memory should be re-checked
+**Category:** Project
+**Summary:** `source: human|inferred|external|mixed` on every note with `^inferred` markers; `sources:` URLs re-checked by `/verify`; beads memories get a confirm clock in `.beads/memory-meta.jsonl` that `/brief` surfaces.
+**Location:** [[Projects/Memoryfield Improvements Spec]]
+
+### 2026-09-02 — /ask now knows how old a note is
+**Category:** Project
+**Summary:** `/reindex` builds a deletable sqlite index; `/ask` reranks by relevance × recency (per-type half-lives, none for state-shaped notes) and cites with age labels. A bulk-committed note keeps its own `date:` rather than reading as written today.
+**Location:** [[Projects/Temporal Retrieval Spec]]
+
+### 2026-09-02 — The vault can speak memoryfield
+**Category:** Project
+**Summary:** `/export-memoryfield` packages Resources/ and Areas/ as a spec-conformant zip (uuids written back, 8 KB pages split at `##`); `/import-memoryfield` quarantines incoming pages as `(imported, unverified)` and refuses a bad sha256.
+**Location:** [[Projects/Memoryfield Improvements Spec]]
+
+### 2026-09-02 — Beads can run from a phone: remote sessions build bd and round-trip through issues.jsonl
+**Category:** Area
+**Summary:** The Dolt DB is a cache; `.beads/issues.jsonl` is the state. SessionStart hook builds `bd`, `/sync-todos` exports back. No need to commit the database.
+**Location:** [[Areas/Claude-as-Brain]]
+
+### 2026-09-02 — bd 1.2.2 memories have no metadata fields
+**Category:** Project
+**Summary:** `bd remember` takes only `--key`, so Memoryfield §4 decay uses the committed sidecar fallback, not tags on the memory.
+**Location:** [[Projects/Memoryfield Improvements Spec]]
+
+### 2026-09-01 — Two retrieval specs filed: temporal scoring and memoryfield interop
+**Category:** Project
+**Summary:** Recency × relevance × activation over a deletable sqlite index; provenance, contradiction detection, memory decay, citations, memoryfield export/import. Tracked as beads under `spec:temporal` and `spec:memoryfield`.
+**Location:** [[Projects/Temporal Retrieval Spec]] · [[Projects/Memoryfield Improvements Spec]]
+
 ### 2025-04-18 — Conditional decisions need numeric triggers
 **Category:** Area
 **Summary:** "Revisit if churn moves" never fired because nobody defined "moves" — two signals accumulated with no revisit.

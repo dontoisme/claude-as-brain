@@ -49,12 +49,16 @@ Commitments. Anything with an owner, a state, or a dependency. Retrieved with `b
 
 `Todos.md` is a **generated mirror** of beads — regenerate it with `/sync-todos` after any write. Never hand-edit it.
 
+**The tracked state is `.beads/issues.jsonl`, not the database.** `/sync-todos` exports to it. In a remote or ephemeral session, run `/sync-todos` before pushing or the beads you wrote are gone with the container. A SessionStart hook (`.claude/hooks/setup-beads.sh`) builds `bd` and loads the JSONL when a session starts without it.
+
 ### Layer 3 — Beads memories (`bd remember`)
 Short operational facts that should be present in every session without being looked up. *"Fiscal year starts in April." "Dana owns the billing roadmap."*
 
 ```bash
 bd remember "Dana owns the billing roadmap" --key dana-billing
 ```
+
+After `bd remember`, record it as confirmed — `python3 .claude/scripts/memory_meta.py confirm <key>` (`--kind person` for facts about people, `--permanent` for things that can't go stale). Memories never expire on their own; `/brief` asks you to confirm, retire, or edit the ones past their ttl.
 
 These are auto-injected via `bd prime` at session start. **Proactively suggest this** when the user states a durable fact in passing — it costs one command and pays out in every future session. This is the highest-leverage habit in the system and the one users forget exists.
 
@@ -75,6 +79,10 @@ retrieval_mode: inline
 
 Switch by editing the value above. Rough guide: under ~200 notes, `inline` is genuinely better — spawn latency exceeds the benefit. Past ~500, `parallel` starts to win.
 
+**The index.** `/reindex` builds `.index/brain.sqlite3`, a gitignored, deletable accelerator. When it exists, `/ask` runs `python3 .claude/scripts/brain_index.py rank "<question>"` to get candidates scored by relevance × recency × activation, with age labels. When it doesn't, `/ask` greps as before and says so once. If a local `ollama` serves `nomic-embed-text`, `/reindex` embeds notes and `/ask` unions semantic and grep candidates; otherwise relevance is grep-based. No other embedding dependency, ever. Either way the reading and the answer are yours; the index only orders the pile.
+
+**Bumps.** Every note actually read to produce an answer gets `python3 .claude/scripts/brain_index.py bump <paths> --kind ask|thread|prep|brief`, and a note that just gained inbound wikilinks gets `bump --links-of <the new note> --kind wikilink`. A bump resets the note's recency clock and raises its activation, which is how a 60-day-old note you keep coming back to stays warm. Never bump from `/reindex`, `/link-check`, or `/rebuild-dashboard`; mechanical passes are not evidence of relevance.
+
 ### The delegation rule
 
 **Subagents return evidence. Only the main thread draws conclusions.**
@@ -84,6 +92,35 @@ This is not a style preference. A subagent that reports *"the decision was annua
 Subagents quote verbatim with file paths. You interpret. And synthesis stays in the main thread for a second reason: it's the only context that knows this conversation.
 
 Never delegate: `/capture` and `/brief` (speed is the feature), `/save-to-brain` (needs session context a subagent cannot see), `/daily-note` (one file).
+
+---
+
+## Retrieval Config
+
+Machine-read by the helper scripts in `.claude/scripts/`. Keep it valid YAML; explanations go here, not in the block.
+
+- `quarantine` — folders whose notes `/ask` labels `(imported, unverified)`. Appended to by `/import-memoryfield`; remove a folder once you've reviewed its pages.
+- `verify.skip_domains` / `verify.max_fetches` — `/verify` never fetches the listed domains and stops after the cap per run.
+- `wikilink_weight` — how much a new inbound wikilink counts toward a note's activation, relative to being read for an answer (1.0). The spec proposed 0.5 and left it open; change it here.
+- `half_life_days` — recency decay per note type, used by the index behind `/ask` (see [[Projects/Temporal Retrieval Spec]] Part 2). `inf` means no decay: state-shaped notes don't go stale by age, only by contradiction. `project` applies only once its `status:` is complete or archived; active projects never decay. Override any value here.
+
+```yaml
+retrieval:
+  quarantine: []
+  verify:
+    skip_domains: []
+    max_fetches: 30
+  wikilink_weight: 0.5
+  half_life_days:
+    day: 7
+    meeting: 21
+    inbox: 14
+    project: 60
+    area: inf
+    resource: inf
+    person: inf
+    moc: inf
+```
 
 ---
 
@@ -158,6 +195,10 @@ Topic:    #your-domain, #your-domain/subtopic
 **Frontmatter** — every note gets it. At minimum `date` and `tags`.
 
 **Linking** — link generously. An unlinked note is nearly invisible, in Obsidian and to grep alike.
+
+**Provenance** — every note carries `source: human | inferred | external | mixed` (optional `confidence: high | medium | low`; defaults high for human, medium for inferred, low for external). In a `mixed` note, any paragraph you wrote that is not a restatement of what the user said ends with `^inferred`; a paragraph that is one may end with `^human`. Retrieval labels citations by source and never restates an inferred claim as fact: *"you noted an inference that…"*, not *"finance was worried about runway."*
+
+**Citations** — a note derived from a web page carries `sources:` (`url`, `fetched`, optional one-sentence `claim`). `/verify` refetches and flags claims the page no longer supports.
 
 ---
 

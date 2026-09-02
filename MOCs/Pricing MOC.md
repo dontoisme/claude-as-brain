@@ -1,6 +1,7 @@
 ---
 date: 2025-03-12
 tags: ["#moc", "#pricing", "#example-seed"]
+source: mixed
 updated: 2025-04-18
 ---
 

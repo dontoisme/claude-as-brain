@@ -1,8 +1,11 @@
 ---
 date: 2025-03-12
 tags: ["#meeting", "#pricing", "#example-seed"]
+source: human
 attendees: [Dana Whitfield, Marcus Ellery, You]
 related_areas: ["[[Areas/Pricing]]"]
+distilled_to: ['[[Areas/Pricing]]', 'bd:cab-ex1']
+distilled_on: '2026-09-02'
 ---
 
 # 20250312 — Pricing Review

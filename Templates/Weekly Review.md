@@ -1,6 +1,8 @@
 ---
 date: {{date:YYYY-MM-DD}}
 tags: ["#weekly-review"]
+source: mixed
+summary: 
 week: {{date:gggg-[W]ww}}
 ---
 
@@ -26,12 +28,29 @@ week: {{date:gggg-[W]ww}}
 
 ## Decisions Made
 
+## Distilled
+
+<!-- Event notes marked distilled_to this week, and what moved where. -->
+
+| Source note | → |
+|-------------|---|
+|             |   |
+
+## Proposals
+
+<!-- From the promotion table: accepted / declined -->
+
+## Contradictions
+
+<!-- "N possible contradictions filed" — list the bead IDs -->
+
 ## System Health
 
 - Inbox: `[N]` items
 - Ready work: `bd ready` → `[N]`
 - Stale: `bd stale` → `[N]`
 - Broken links: `/link-check` → `[N]`
+- Cooling off: `[N]` notes below 0.6 with nothing distilled
 
 ## Next Week
 

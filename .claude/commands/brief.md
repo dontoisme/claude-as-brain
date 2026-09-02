@@ -28,6 +28,18 @@ bd list --due-before tomorrow      # due today
 
 **Inbox** — count items in `Inbox/`. Mention only if over five.
 
+**Memories to confirm** —
+```bash
+python3 .claude/scripts/memory_meta.py due --limit 5
+```
+Memories past their ttl (default 90 days, 60 for people), oldest first, capped at five. Skip the section when it's empty.
+
+**Cooling off** —
+```bash
+python3 .claude/scripts/brain_index.py cooling --since 7
+```
+Notes whose activation crossed below 0.6 this week with nothing distilled out of them. Show at most three, oldest first: *"distill or let go?"* Skip the section when empty or when there's no index.
+
 **Today's meetings** — anything already captured in `Days/` or `Meetings/`. Don't invent a calendar you can't see; if there's no meeting info in the vault, skip the section silently.
 
 ## Step 2: Write It
@@ -48,13 +60,29 @@ bd list --due-before tomorrow      # due today
 - Waiting on Legal since Mar 4 (cab-22) — worth chasing
 
 **Inbox:** 7 items
+
+### Memories to confirm
+- `dana-billing` — "Dana owns the billing roadmap" — confirmed 94 days ago
+  confirm · retire · edit
 ```
+
+For each memory the user answers with one word. **confirm** → `python3 .claude/scripts/memory_meta.py confirm <key>`. **retire** → `python3 .claude/scripts/memory_meta.py retire <key>` (runs `bd forget`). **edit** → `bd remember "<new text>" --key <key>` then confirm it. Anything they don't answer stays listed tomorrow; nothing expires on its own — a memory is injected into every session until someone retires it, by design.
 
 Then **one line** of orientation. Not analysis — a pointer:
 
 > *Two things are blocked on other people and both are over two weeks old. Might be a chasing day.*
 
 That's the whole brief.
+
+## After Writing: Bump
+
+The daily note you read for "Yesterday" was read to produce the brief. Record it, and nothing else — the brief lists beads, not notes:
+
+```bash
+python3 .claude/scripts/brain_index.py bump Days/YYYYMMDD.md --kind brief
+```
+
+Skip when there is no index.
 
 ## Judgment Calls
 

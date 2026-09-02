@@ -70,6 +70,7 @@ Then **demonstrate the memory layer** — it's the least obvious part of the sys
 
 ```bash
 bd remember "<a real fact from their Step 1 answers>" --key <key>
+python3 .claude/scripts/memory_meta.py confirm <key>
 ```
 
 > *"That's now in every future session in this folder — no note to open, no command to run. Add facts with `bd remember` whenever they come up. It's the habit that makes this feel like it knows you."*
