@@ -670,17 +670,18 @@ def cmd_bump(args: argparse.Namespace) -> int:
 
 def replace_fm_keys(text: str, values: dict) -> str:
     """Set top-level frontmatter keys in place, preserving everything else; creates frontmatter if absent."""
+    def render(key, value):
+        if isinstance(value, (list, dict)):
+            return f"{key}: " + yaml.safe_dump(value, default_flow_style=True, allow_unicode=True, width=1000).strip()
+        return f"{key}: " + re.sub(r"\n\.\.\.$", "", yaml.safe_dump(value, allow_unicode=True, width=1000).strip())
     m = FM_RE.match(text)
     if not m:
-        return replace_fm_keys(f"---\n---\n\n{text.lstrip()}", values)
+        block = "\n".join(render(k, v) for k, v in values.items())
+        return f"---\n{block}\n---\n\n{text.lstrip()}"
     raw = m.group(1)
     lines = [l for l in raw.split("\n") if l.strip()]
     for key, value in values.items():
-        if isinstance(value, (list, dict)):
-            rendered = yaml.safe_dump(value, default_flow_style=True, allow_unicode=True, width=1000).strip()
-        else:
-            rendered = re.sub(r"\n\.\.\.$", "", yaml.safe_dump(value, allow_unicode=True, width=1000).strip())
-        dumped = [f"{key}: {rendered}"]
+        dumped = [render(key, value)]
         start = end = None
         for i, line in enumerate(lines):
             if start is None and re.match(rf"^{re.escape(key)}\s*:", line):

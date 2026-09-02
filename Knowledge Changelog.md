@@ -28,6 +28,11 @@ Written automatically by `/save-to-brain`. Add entries by hand any time.
 
 <!-- Newest first. Add below this line. -->
 
+### 2026-09-02 — Weekly review proposes promotions and hunts contradictions; both specs complete
+**Category:** Project
+**Summary:** `brain_review.py promote` proposes memory/MOC/bead links from repetition and usage, never acts; `neighbors` pairs each week's notes with their nearest neighbours for a yes/no contradiction read that files a `contradiction` bead. First run on the seed filed cab-kly (Apr 18 vs Mar 12 pricing rationale). All 13 spec beads closed.
+**Location:** [[Projects/Memoryfield Improvements Spec]] · [[Areas/Claude-as-Brain]]
+
 ### 2026-09-02 — Weekly review distills instead of summarising
 **Category:** Project
 **Summary:** Event notes (Days, Meetings) get their durable content moved to Areas, memories, beads, or Resources, then are marked `distilled_to` so they can decay. `/brief` shows what's cooling off undistilled; `/link-check` catches dangling targets. Seed pricing thread distilled as the worked example.

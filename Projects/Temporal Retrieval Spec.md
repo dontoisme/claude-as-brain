@@ -2,7 +2,7 @@
 date: 2026-09-01
 title: Temporal Retrieval Spec
 type: spec
-status: active
+status: complete
 tags: ["#project", "#spec", "#retrieval", "#index"]
 related: "[[Projects/Memoryfield Improvements Spec]]"
 area: "[[Areas/Claude-as-Brain]]"
@@ -279,3 +279,5 @@ Epic `cab-2ap`. Created 2026-09-02; dependency direction is *blocked → blocker
 | E — extraction | `cab-a54` | B |
 
 Memoryfield §5 and §3 also block on Phase A.
+
+**Status 2026-09-02:** all beads above closed. Implementation notes and what was verified are in each bead's close reason (`bd show <id>`).

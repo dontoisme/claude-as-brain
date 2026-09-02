@@ -2,7 +2,7 @@
 date: 2026-09-01
 title: Memoryfield Improvements Spec
 type: spec
-status: active
+status: complete
 tags: ["#project", "#spec", "#retrieval", "#provenance", "#interop"]
 related: "[[Projects/Temporal Retrieval Spec]]"
 area: "[[Areas/Claude-as-Brain]]"
@@ -230,3 +230,5 @@ Epic `cab-c0t`. Created 2026-09-02 from the build order above; dependency direct
 | §3 Contradiction detection | `cab-ixy` | Temporal Phase A `cab-7ll` · related to Phase D `cab-659` |
 
 §1 is tracked under the Temporal spec as Phases A and D.
+
+**Status 2026-09-02:** all beads above closed. Implementation notes and what was verified are in each bead's close reason (`bd show <id>`).

@@ -16,12 +16,17 @@ uuid: 000ea256-88a7-4cb4-aa27-2a69c59dae6c
 
 ## Current State
 
-Two specs are active as Projects. Work is tracked in beads under the labels `spec:memoryfield` and `spec:temporal`.
+Both specs shipped on 2026-09-02; their beads are closed and the epics with them. What exists now, by layer:
 
-- [[Projects/Memoryfield Improvements Spec]] — provenance, contradiction detection, memory decay, auto-promotion, citations, memoryfield export/import
-- [[Projects/Temporal Retrieval Spec]] — a deletable sqlite index, recency and usage scoring, intent profiles, extraction in weekly review
+- **Retrieval** — `/reindex` builds `.index/brain.sqlite3`; `/ask` reranks by relevance × recency × activation with intent profiles, provenance labels, and age labels; embeddings switch on automatically when a local `ollama` serves `nomic-embed-text`. Scripts: `.claude/scripts/brain_index.py`.
+- **Provenance** — `source:` on every note, `^inferred` markers, `sources:` URLs re-checked by `/verify` (`verify_sources.py`).
+- **Memory hygiene** — `.beads/memory-meta.jsonl` confirm clock surfaced by `/brief` (`memory_meta.py`).
+- **Weekly review** — distillation of event notes, promotion proposals, and a contradiction pass (`brain_review.py`), then `/reindex`.
+- **Interop** — `/export-memoryfield`, `/import-memoryfield` (`memoryfield.py`).
 
-Build order and dependencies are in each spec. `bd ready -l spec:memoryfield` or `bd ready -l spec:temporal` shows what is claimable.
+Specs, kept as the design record: [[Projects/Memoryfield Improvements Spec]] · [[Projects/Temporal Retrieval Spec]]. `bd list -l contradiction` shows what the contradiction pass has filed.
+
+Known limits worth remembering: the live ollama embedding path is written to the documented API but was verified only with a test embedder; prompt-level acceptance tests (`/ask` labelling) are untested headless.
 
 ## Decisions
 
@@ -29,6 +34,9 @@ Build order and dependencies are in each spec. `bd ready -l spec:memoryfield` or
 |----------|------|-----------|
 | Beads is an accelerator; markdown stays the source of truth | 2026-09-01 | Both specs restate this as the unbreakable constraint. See [[PLAN]]. |
 | Remote (mobile) sessions build `bd` from source via a SessionStart hook and persist state through `.beads/issues.jsonl` | 2026-09-02 | The Dolt database is an ephemeral cache. Committing it would mean binary diffs for no benefit. |
+| A retrieval resets a note's recency clock (age from the later of `updated` and last retrieval) | 2026-09-02 | The only reading under which Temporal Phase B's acceptance can pass; matches the spec's "decays from last retrieval, not creation". |
+| Wikilink bumps weigh 0.5× a read-for-answer; `mixed` provenance scores 0.95 | 2026-09-02 | Both left open by the specs; both are one-line knobs in CLAUDE.md. |
+| Memory decay lives in a committed sidecar, not on the memory | 2026-09-02 | bd 1.2.2 has no memory metadata. |
 
 ## Related
 

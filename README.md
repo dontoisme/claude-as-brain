@@ -157,7 +157,15 @@ Without it, the vault still works — task tracking falls back to hand-maintaine
 | `/sync-todos` | Render beads state into readable `Todos.md` |
 | `/update-mocs` | Keep Maps of Content current |
 | `/link-check` | Find broken links and orphaned notes |
-| `/weekly-review` | The Friday synthesis |
+| `/weekly-review` | The Friday synthesis — distills event notes, proposes promotions, files contradictions |
+| `/reindex` | Rebuild the deletable retrieval index behind `/ask` (recency, usage, optional embeddings) |
+| `/verify` | Refetch the URLs a note's claims rest on and flag what no longer holds |
+
+### Interop
+| | |
+|---|---|
+| `/export-memoryfield` | Package `Resources/` and `Areas/` as an open-format `.memoryfield.zip` |
+| `/import-memoryfield` | Bring one in, quarantined as `(imported, unverified)` until you've read it |
 | `/ramp` | New-role capture: org, people, acronyms, systems |
 
 ### Setup
