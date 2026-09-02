@@ -73,6 +73,7 @@ Run these and report only what's notable:
 - `/update-mocs` — new notes into maps, propose new MOCs
 - `/link-check` — broken links, orphans
 - `/rebuild-dashboard` — refresh the command center
+- `/reindex` — refresh the retrieval index so next week's `/ask` sees this week's notes at their true age (last, after the file edits above)
 
 ## Step 6: Plan Next Week
 

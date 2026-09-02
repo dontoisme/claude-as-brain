@@ -77,6 +77,8 @@ retrieval_mode: inline
 
 Switch by editing the value above. Rough guide: under ~200 notes, `inline` is genuinely better — spawn latency exceeds the benefit. Past ~500, `parallel` starts to win.
 
+**The index.** `/reindex` builds `.index/brain.sqlite3`, a gitignored, deletable accelerator. When it exists, `/ask` runs `python3 .claude/scripts/brain_index.py rank "<question>"` to get candidates scored by relevance × recency × activation, with age labels. When it doesn't, `/ask` greps as before and says so once. Either way the reading and the answer are yours; the index only orders the pile.
+
 ### The delegation rule
 
 **Subagents return evidence. Only the main thread draws conclusions.**
@@ -94,10 +96,20 @@ Never delegate: `/capture` and `/brief` (speed is the feature), `/save-to-brain`
 Machine-read by the helper scripts in `.claude/scripts/`. Keep it valid YAML; explanations go here, not in the block.
 
 - `quarantine` — folders whose notes `/ask` labels `(imported, unverified)`. Appended to by `/import-memoryfield`; remove a folder once you've reviewed its pages.
+- `half_life_days` — recency decay per note type, used by the index behind `/ask` (see [[Projects/Temporal Retrieval Spec]] Part 2). `inf` means no decay: state-shaped notes don't go stale by age, only by contradiction. `project` applies only once its `status:` is complete or archived; active projects never decay. Override any value here.
 
 ```yaml
 retrieval:
   quarantine: []
+  half_life_days:
+    day: 7
+    meeting: 21
+    inbox: 14
+    project: 60
+    area: inf
+    resource: inf
+    person: inf
+    moc: inf
 ```
 
 ---

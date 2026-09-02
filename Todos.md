@@ -1,6 +1,6 @@
 ---
 tags: ["#todos"]
-generated: 2026-09-02 03:05
+generated: 2026-09-02 03:30
 ---
 
 # ✅ Action Items
@@ -14,28 +14,22 @@ generated: 2026-09-02 03:05
 
 | Task | Owner | Source | Due | ID |
 |------|-------|--------|-----|-----|
+| Temporal retrieval — Phase B: retrieval bumps + activation | You | [[Projects/Temporal Retrieval Spec]] | — | cab-m6r |
+| Temporal retrieval — Phase D: embeddings (ollama + nomic-embed-text) | You | [[Projects/Temporal Retrieval Spec]] | — | cab-659 |
 | Memoryfield §2 — Provenance and confidence in frontmatter | You | [[Projects/Memoryfield Improvements Spec]] | — | cab-8fb |
 | Memoryfield §4 — Memory decay for beads memories | You | [[Projects/Memoryfield Improvements Spec]] | — | cab-b94 |
+| Memoryfield §5 — Auto-promotion between layers | You | [[Projects/Memoryfield Improvements Spec]] | — | cab-2ch |
+| Memoryfield §3 — Contradiction detection as a maintenance pass | You | [[Projects/Memoryfield Improvements Spec]] | — | cab-ixy |
 | Revisit annual-only pricing for mid-market | You | [[Areas/Pricing]] | — | cab-ex2 |
 | Pull churn numbers by contract term | You | [[Areas/Pricing]] | — | cab-ex4 |
-
-## ⏳ In Progress
-
-| Task | Owner | Source | ID |
-|------|-------|--------|-----|
-| Temporal retrieval — Phase A: index + scoring, grep only | Claude | [[Projects/Temporal Retrieval Spec]] | cab-7ll |
 
 ## 🤝 Blocked
 
 | Task | Blocked On | Since | ID |
 |------|-----------|-------|-----|
-| Temporal retrieval — Phase B: retrieval bumps + activation | Phase A (cab-7ll) | 2026-09-02 | cab-m6r |
 | Temporal retrieval — Phase C: query intent profiles | Phase B (cab-m6r) | 2026-09-02 | cab-7wb |
-| Temporal retrieval — Phase D: embeddings | Phase A (cab-7ll) | 2026-09-02 | cab-659 |
 | Temporal retrieval — Phase E: extraction in /weekly-review | Phase B (cab-m6r) | 2026-09-02 | cab-a54 |
 | Memoryfield §6 — Citations as a first-class field, with /verify | §2 (cab-8fb) | 2026-09-02 | cab-dn9 |
-| Memoryfield §5 — Auto-promotion between layers | Temporal Phase A (cab-7ll) | 2026-09-02 | cab-2ch |
-| Memoryfield §3 — Contradiction detection as a maintenance pass | Temporal Phase A (cab-7ll) | 2026-09-02 | cab-ixy |
 | Get Legal's read on mid-market contract language | Legal | 2025-04-04 | cab-ex3 |
 
 ## 📋 Epics
@@ -49,9 +43,10 @@ generated: 2026-09-02 03:05
 
 ## ✅ Recently Closed
 
+- ~~Temporal retrieval — Phase A: index + scoring, grep only~~ — closed 2026-09-02 (cab-7ll)
 - ~~Memoryfield §7 — Export / import~~ — closed 2026-09-02 (cab-1mw)
 - ~~Send Riverside the revised renewal terms~~ — closed 2025-04-09 (cab-ex5)
 
 ---
 
-*Generated 2026-09-02 03:05 · `bd ready` for the live view*
+*Generated 2026-09-02 03:30 · `bd ready` for the live view*

@@ -28,6 +28,11 @@ Written automatically by `/save-to-brain`. Add entries by hand any time.
 
 <!-- Newest first. Add below this line. -->
 
+### 2026-09-02 — /ask now knows how old a note is
+**Category:** Project
+**Summary:** `/reindex` builds a deletable sqlite index; `/ask` reranks by relevance × recency (per-type half-lives, none for state-shaped notes) and cites with age labels. A bulk-committed note keeps its own `date:` rather than reading as written today.
+**Location:** [[Projects/Temporal Retrieval Spec]]
+
 ### 2026-09-02 — The vault can speak memoryfield
 **Category:** Project
 **Summary:** `/export-memoryfield` packages Resources/ and Areas/ as a spec-conformant zip (uuids written back, 8 KB pages split at `##`); `/import-memoryfield` quarantines incoming pages as `(imported, unverified)` and refuses a bad sha256.

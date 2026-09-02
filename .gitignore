@@ -23,3 +23,6 @@ Thumbs.db
 
 # Memoryfield archives — outputs of /export-memoryfield
 *.memoryfield.zip
+
+# Python bytecode from the helper scripts
+__pycache__/

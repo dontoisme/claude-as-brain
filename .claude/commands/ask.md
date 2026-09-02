@@ -10,6 +10,20 @@ This is the flagship command. It replaces the search bar you'd have in a note-ta
 
 Everything below serves that. If you take nothing else from this file: never fill a gap with something plausible. "I found nothing on that" is a good answer. A confident synthesis of notes that don't exist is a catastrophic one, because the user will believe it — that's the entire point of having a brain they trust.
 
+## Step 0: Rank With the Index, If There Is One
+
+```bash
+python3 .claude/scripts/brain_index.py rank "<the question>" --k 12
+```
+
+If `.index/brain.sqlite3` exists this returns candidates scored **relevance × recency × activation** ([[Projects/Temporal Retrieval Spec]] Part 2), each with an age label. Use it to order the pile, not to replace the sweep: a note the index scores low can still be the answer, and the index knows nothing about beads or MOCs.
+
+If it exits with "no index", say once — *"No retrieval index; grepping. `/reindex` builds one."* — and continue without it. Never stop on a missing index.
+
+**Never filter on age.** The score reranks; it does not drop. A strong-match 90-day-old meeting must be able to beat a weak-match note from yesterday, and it can, because relevance is in the product.
+
+Profiles (`--profile current|decision|archival`) exist but classification is Phase C's job (`cab-7wb`). Until then: pass `archival` when the question is plainly historical ("has anyone ever", "did we ever"), `decision` for "what did we decide / why did we", and leave the default otherwise.
+
 ## Step 1: Sweep Broadly
 
 Do not stop at the first grep. Run several angles — each finds things the others miss:
@@ -72,7 +86,13 @@ Synthesis also stays in the main thread because it's the only place that knows t
 
 Lead with the answer. Not with your process, not with what you searched.
 
-**Cite every claim** with its source path: `Meetings/20250312 - Pricing Review.md`. The user must be able to open the file and check you.
+**Cite every claim** with its source path and, when the index ran, its age and warmth:
+
+```
+Meetings/20250715 - Pricing Review.md   (48d old · last cited 3d ago · 6 refs)
+```
+
+The label comes straight from the rank output. A note older than twice its half-life carries `[possibly stale]`; say so in the answer rather than silently treating it as current. The user must be able to open the file and check you.
 
 **Mark inference explicitly.** There is a hard line between:
 - *"You decided X"* — the note says so
@@ -105,6 +125,10 @@ Prose, not bullet soup. This is a question being answered, not a report.
 - **Short question → short answer.** Two sentences and a citation is a fine response.
 - **Complex question → structure it,** but lead with the direct answer before the supporting detail.
 - **Always end with a pointer** to the two or three notes most worth opening.
+
+## Retrieval Bumps — Not Yet
+
+Temporal Phase B (`cab-m6r`) will record every note you actually read to answer into the `retrievals` table so frequently-useful notes stay warm. Until it lands, do **not** write to the index from here.
 
 ## If `bd` Isn't Installed
 
