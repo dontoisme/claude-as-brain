@@ -1,0 +1,27 @@
+name: Bug
+description: A command, script, or hook did something other than what it says
+labels: [bug]
+body:
+  - type: input
+    id: command
+    attributes:
+      label: Which command or script
+      placeholder: "/ask, /process-inbox, .claude/hooks/setup-beads.sh"
+    validations: {required: true}
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected, and what happened instead
+    validations: {required: true}
+  - type: textarea
+    id: env
+    attributes:
+      label: Environment
+      description: Output of `bd --version` if beads is involved, and your OS. Say if bd isn't installed — that's a supported configuration and a likely cause.
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Before you paste
+      options:
+        - label: I've checked this report for anything from my own vault I don't want public
+          required: true

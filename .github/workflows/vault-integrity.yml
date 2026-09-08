@@ -1,0 +1,22 @@
+name: Vault integrity
+
+# The README's pitch rests on the vault staying trustworthy markdown. This
+# checks the three invariants that claim depends on — nothing else. There is
+# no build and no test suite here on purpose; CI that isn't defending a
+# stated promise would just be ceremony.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Check vault invariants
+        run: python3 .claude/scripts/vault_check.py
