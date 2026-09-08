@@ -110,13 +110,14 @@ Then continue, genuinely. **Don't push, and don't make it a hard requirement.** 
 
 ```bash
 cd "$CLAUDE_BRAIN"
-bd init --prefix <2-4 letters from their vault name>
-bd import                  # unpacks the seeded issues and memories
+bd init --prefix <2-4 letters from their vault name> --from-jsonl
 bd setup claude            # wires up Claude Code integration
 bd hooks install           # auto-injects `bd prime` at session start
 ```
 
 **Initialize from inside the vault, always.** `bd init` in the wrong directory creates a store the brain will never find, and nothing announces it.
+
+**`--from-jsonl` seeds in the same call.** A separate `bd import` against a freshly created database fails with *"database name must not be empty"* — the store isn't configured until init finishes. If the vault has no `.beads/issues.jsonl`, drop the flag.
 
 Then **demonstrate the memory layer** — it's the least obvious part of the system and the most valuable, and describing it doesn't land:
 

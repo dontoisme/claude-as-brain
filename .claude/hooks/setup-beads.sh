@@ -49,14 +49,22 @@ if ! command -v bd >/dev/null 2>&1 && [ -x "${HOME}/.local/bin/bd" ]; then
 fi
 command -v bd >/dev/null 2>&1 || install_bd || exit 0
 
-fresh=0
-[ -d .beads/embeddeddolt ] || fresh=1
-bd init --prefix "$PREFIX" --init-if-missing --skip-agents --skip-hooks --non-interactive -q >/dev/null 2>&1 \
-  || say "bd init reported a problem (continuing)"
-
-if [ "$fresh" = 1 ] && [ -f .beads/issues.jsonl ]; then
-  out=$(bd import 2>&1 | tail -1)
-  say "fresh database: $out"
+# bd has no --init-if-missing; running init over an existing database is what
+# --force is for, and we never want that. Guard on the database directory
+# instead, and seed from the tracked JSONL in the same call (--from-jsonl),
+# because a separate `bd import` against a just-created database fails with
+# "database name must not be empty".
+if [ -d .beads/embeddeddolt ]; then
+  : # already initialized; the summary below covers it
+else
+  seed=""
+  [ -f .beads/issues.jsonl ] && seed="--from-jsonl"
+  if bd init --prefix "$PREFIX" --skip-agents --skip-hooks --non-interactive $seed -q >/dev/null 2>&1; then
+    say "initialized ${PREFIX} store${seed:+ from .beads/issues.jsonl}"
+  else
+    say "bd init failed; run 'bd doctor' (continuing without beads)"
+    exit 0
+  fi
 fi
 
 say "$(bd ready 2>/dev/null | grep -c '^[○◐]') issue(s) claimable; run 'bd ready'. Export with /sync-todos before pushing."
