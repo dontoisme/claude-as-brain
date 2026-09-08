@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Claude-as-Brain</title>
+  <meta name="description" content="A personal knowledge system where Claude Code is the retrieval layer. Plain markdown, PARA + MOC structure, Obsidian-compatible, optional beads task/memory layer.">
+
+  <meta property="og:title" content="Claude-as-Brain">
+  <meta property="og:description" content="A personal knowledge system where Claude Code is the retrieval layer. Ask it what you decided, and whether anything has quietly contradicted it since.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://dontoisme.github.io/claude-as-brain/">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="wrap">
+
+    <header class="hero">
+      <p class="kicker">claude-as-brain</p>
+      <h1>A personal knowledge system where Claude Code is the retrieval layer.</h1>
+      <p class="dek">No app to install. No plugins. No proprietary format. A folder of markdown files, an optional task database, and a set of commands that make Claude genuinely good at operating them.</p>
+    </header>
+
+    <div class="transcript" aria-label="Terminal transcript of /ask">
+      <p><span class="prompt">&gt; /ask</span> what did we decide about annual pricing, and has anything contradicted it since?</p>
+      <p>Three notes touch this.
+
+You landed on annual-only for enterprise in the Mar 12 pricing review <span class="file">(Meetings/20250312 - Pricing Review.md)</span> — rationale was cash flow predictability, and Dana pushed for it.
+
+Two things have since cut against it:
+
+— Apr 2 customer call: two mid-market accounts asked for quarterly and one said annual was "the reason we almost didn't sign" <span class="file">(Meetings/20250402 - Riverside Renewal.md)</span>
+— Your own note on Apr 18 flags that the finance rationale assumed a cash position that has since changed <span class="file">(Areas/Pricing.md)</span>
+
+Nothing has formally reopened the decision. There's an open bead — cab-31, "revisit annual-only for mid-market" — created Apr 18, still unblocked and untouched since.</p>
+    </div>
+
+    <div class="cta-row">
+      <a class="btn btn-primary" href="https://github.com/dontoisme/claude-as-brain">View on GitHub</a>
+      <a class="btn btn-ghost" href="https://github.com/dontoisme/claude-as-brain#see-it-work-before-you-commit-to-anything">See it work in 60s</a>
+    </div>
+
+    <section>
+      <h2>Search can't do this</h2>
+      <p>Not full-text search, not graph view, not a Dataview query. Answering that question requires reading several notes, noticing two of them quietly disagree with a decision, and saying so — that's synthesis, not retrieval, and it's the whole point of putting a model in the loop instead of an index.</p>
+      <p>But the files underneath stay ordinary. Full PARA + MOC structure, YAML frontmatter, <code>[[wikilinks]]</code>, plain markdown throughout. Install Obsidian tomorrow and the vault lights up with graph view and backlinks — nothing to migrate. Lose every tool and you still have a folder of readable notes. That's the actual constraint: markdown is the source of truth, and everything else is an accelerator that could vanish without costing you any knowledge.</p>
+    </section>
+
+    <section>
+      <h2>Three memory layers</h2>
+      <p>Most systems have one layer and bolt tasks onto the side. This has three, with a clear rule for what goes where:</p>
+      <table class="layers">
+        <tr><th>Layer</th><th>Holds</th><th>Comes back via</th></tr>
+        <tr><td>Notes</td><td>Prose, reasoning, meeting records, decisions</td><td>Claude reads and synthesizes</td></tr>
+        <tr><td>Beads issues</td><td>Commitments — owner, state, dependencies</td><td><code>bd ready</code>, <code>bd stale</code>, <code>bd graph</code></td></tr>
+        <tr><td>Beads memories</td><td>Durable one-line facts</td><td>Auto-injected into every session</td></tr>
+      </table>
+      <p style="margin-top:1rem"><em>Want to read it later → note. Need to do it → bead. Should Claude just know it → memory.</em></p>
+    </section>
+
+    <section class="quickstart">
+      <h2>Start here</h2>
+      <p>Three commands. Everything else can wait until you want it.</p>
+      <pre><code>git clone https://github.com/dontoisme/claude-as-brain.git my-brain
+cd my-brain
+claude</code></pre>
+      <p>Then, inside Claude Code:</p>
+      <ol>
+        <li><code>/thread annual pricing</code> — see the worked example answer the question above, before you change anything</li>
+        <li><code>/install</code> — turn the distribution into your own vault</li>
+        <li><code>/capture</code>, <code>/ask</code>, <code>/daily-note</code> — the only three commands you need on day one</li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>Not just an assistant with better prompts</h2>
+      <div class="pillars">
+        <div class="pillar">
+          <span class="label">Portable</span>
+          <p>Plain markdown, conventional PARA folders, real wikilinks. Nothing here requires Claude to keep working.</p>
+        </div>
+        <div class="pillar">
+          <span class="label">Honest</span>
+          <p>Every claim about the vault carries a file path, or is labeled as inference. No fourth state.</p>
+        </div>
+        <div class="pillar">
+          <span class="label">Cheap to run</span>
+          <p>Optional <a href="https://github.com/steveyegge/beads">beads</a> layer for tasks and memory. Works with none of it installed.</p>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <span>Claude-as-Brain — MIT licensed — <a href="https://github.com/dontoisme/claude-as-brain">dontoisme/claude-as-brain</a></span>
+      <span><a href="llms.txt">llms.txt</a></span>
+    </footer>
+
+  </div>
+</body>
+</html>

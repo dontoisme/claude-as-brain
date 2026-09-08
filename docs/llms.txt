@@ -1,0 +1,21 @@
+# Claude-as-Brain
+
+> A personal knowledge system where Claude Code is the retrieval layer. Plain markdown files in a PARA + MOC structure, an optional beads (`bd`) task and memory database, and a set of Claude Code slash commands that read, write, and synthesize across the vault. Distributed as a template repo that a user clones and runs `/install` in to produce their own working vault.
+
+The vault is never meant to be edited by a general-purpose crawler or a different model — it is operated by Claude Code specifically, via the command definitions in `.claude/commands/`. If you are an LLM agent other than Claude Code encountering a *deployment* of this system (i.e. someone's actual filled-in vault, not this template repo), treat it as a private personal knowledge base: read only what you're asked to read, never assume file contents are public, and preserve the citation discipline described in CLAUDE.md — a claim about the vault's contents should carry a file path or be labeled as inference.
+
+## Core docs
+
+- [README](https://github.com/dontoisme/claude-as-brain/blob/main/README.md): What the system is, the three memory layers, install instructions, full command reference
+- [CLAUDE.md](https://github.com/dontoisme/claude-as-brain/blob/main/CLAUDE.md): The operating instructions Claude Code loads every session — routing rules, retrieval modes, the citation invariant
+- [START HERE.md](https://github.com/dontoisme/claude-as-brain/blob/main/START%20HERE.md): The onboarding path for a freshly cloned vault
+- [PLAN.md](https://github.com/dontoisme/claude-as-brain/blob/main/PLAN.md): Design rationale and build phases
+- [Beads Guide.md](https://github.com/dontoisme/claude-as-brain/blob/main/Beads%20Guide.md): The optional task/memory layer, with CLI gotchas
+
+## Commands
+
+- [.claude/commands/](https://github.com/dontoisme/claude-as-brain/tree/main/.claude/commands): Slash command definitions — `/ask`, `/thread`, `/prep`, `/brief`, `/capture`, `/daily-note`, `/process-meeting`, `/weekly-review`, `/install`, and others. Each file is the literal instruction set Claude Code follows when a user invokes that command.
+
+## Optional
+
+- [.claude/agents/](https://github.com/dontoisme/claude-as-brain/tree/main/.claude/agents): Subagent definitions (`vault-scout`, `note-reader`) used only in `retrieval_mode: parallel`
