@@ -49,13 +49,16 @@ if ! command -v bd >/dev/null 2>&1 && [ -x "${HOME}/.local/bin/bd" ]; then
 fi
 command -v bd >/dev/null 2>&1 || install_bd || exit 0
 
-# bd has no --init-if-missing; running init over an existing database is what
-# --force is for, and we never want that. Guard on the database directory
-# instead, and seed from the tracked JSONL in the same call (--from-jsonl),
-# because a separate `bd import` against a just-created database fails with
-# "database name must not be empty".
-if [ -d .beads/embeddeddolt ]; then
-  : # already initialized; the summary below covers it
+# bd has no --init-if-missing, and the on-disk layout of the store is not a
+# stable thing to test: it has been .beads/embeddeddolt and .beads/dolt across
+# versions, and in shared-server mode it isn't under .beads at all. So ask bd
+# whether it can open the store rather than guessing at paths.
+#
+# Seed via --from-jsonl in the same call: a separate `bd import` against a
+# just-created database fails with "database name must not be empty", because
+# the store isn't configured until init returns.
+if bd list -n 1 >/dev/null 2>&1; then
+  :   # already initialized; the summary below reports it
 else
   seed=""
   [ -f .beads/issues.jsonl ] && seed="--from-jsonl"
