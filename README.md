@@ -42,6 +42,31 @@ Retrieval-by-asking is not the differentiator — Obsidian with an LLM plugin do
 
 ---
 
+## See It Work, Before You Commit to Anything
+
+Sixty seconds, and you don't have to set anything up first — the repo ships as a working example vault, not an empty skeleton.
+
+```bash
+git clone https://github.com/dontoisme/claude-as-brain.git my-brain
+cd my-brain && claude
+```
+
+Then ask it the question at the top of this page:
+
+```
+/thread annual pricing
+```
+
+The seed content is a worked example: a pricing decision that gets quietly undermined over five weeks. Five notes, five beads, three memories — all tagged `example-seed`, and removed in one step when you're done with them.
+
+It'll walk you from March to April and tell you the decision was explicitly conditional, that the condition was never given a number, and that two independent signals accumulated against it without ever triggering the revisit.
+
+That's the pitch. Search can't do it, graph view can't do it, and neither can you at 8am before a planning meeting.
+
+**If that answer isn't worth having, stop here** — the rest of this page is setup for a thing you don't want. If it is, keep going.
+
+---
+
 ## Three Memory Layers
 
 Most systems have one layer and bolt tasks onto the side. This has three, with a clear rule for what goes where.
@@ -68,11 +93,25 @@ Three commands. Everything else can wait until you want it.
 | `/ask <question>` | Get it back, with citations. |
 | `/daily-note` | Open today. Carries yesterday forward, drains the inbox. |
 
-The full set is sixteen commands, listed below. A new vault does not need them.
+The full set is twenty-seven commands, listed below. A new vault does not need them, and most of them exist to be run by other commands rather than by you.
 
 ---
 
-## Install
+## Install — Making It Yours
+
+The vault you just tried is a demo. This turns it into yours.
+
+**Use the green [Use this template](https://github.com/dontoisme/claude-as-brain/generate) button**, then:
+
+```bash
+git clone https://github.com/<you>/<your-vault>.git my-brain
+cd my-brain && claude
+```
+
+Take the template route rather than cloning this repo directly. It gives you a repo of your own with no shared history and no remote pointing here — which is the whole problem the manual path has to remember to solve:
+
+<details>
+<summary>Cloning directly instead</summary>
 
 ```bash
 git clone https://github.com/dontoisme/claude-as-brain.git my-brain
@@ -81,7 +120,9 @@ git remote remove origin        # your notes are yours — don't push them to th
 claude
 ```
 
-**Don't skip the third line.** Clone, fill the vault with work notes, run `git push` on autopilot six weeks later, and you've published them to a public template repo.
+**Don't skip the third line.** Clone, fill the vault with work notes, run `git push` on autopilot six weeks later, and you've published them to a public template repo. `/install` removes the remote for you, but only once you've run it.
+
+</details>
 
 Then run:
 
@@ -92,6 +133,11 @@ Then run:
 The repo ships as a **distribution**, not a working vault. `/install` unpacks it into yours: asks about your work, fills in `CLAUDE.md`, creates your real Areas, sets up beads, and offers to clear the example content.
 
 ### Or just paste this prompt
+
+No clone at all — Claude builds the vault from scratch in a folder you pick. Useful if you want it somewhere specific, or want to read what it's doing before it does it.
+
+<details>
+<summary>The prompt</summary>
 
 If you'd rather not clone first — or you want Claude to set the whole thing up from scratch in a folder of your choosing — paste this into Claude Code:
 
@@ -138,6 +184,8 @@ Ask me my folder name and what I do, and let's go.
 Works in a fresh directory or an existing one. If you're setting this up for work notes, tell Claude — it'll recommend a private remote or none at all, and flag the vault so personal captures get a warning before they land there.
 
 `/install` also writes `~/.config/claude-brain/config.toml` and prints the `CLAUDE_BRAIN` export line for your shell rc. That's what makes `/capture` and `/ask` work from any directory instead of only inside the vault.
+
+</details>
 
 ### Optional: beads
 
@@ -267,22 +315,6 @@ Markdown in a folder, so use whatever you already use.
 
 ---
 
-## Try It Before You Clear the Examples
-
-The repo ships with a worked example: a pricing decision that gets quietly undermined over five weeks. Five notes, five beads, three memories — all tagged `example-seed` and removed in one step.
-
-Before deleting it, run:
-
-```
-/thread annual pricing
-```
-
-It'll walk you from March to April and tell you the decision was explicitly conditional, that the condition was never given a number, and that two independent signals accumulated against it without ever triggering the revisit.
-
-That's the pitch. Search can't do it, graph view can't do it, and neither can you at 8am before a planning meeting.
-
----
-
 ## Scaling Up
 
 Set `retrieval_mode: parallel` in `CLAUDE.md` and `/ask`, `/thread`, and `/prep` fan out to subagents instead of searching in one thread — scouts sweep each search angle concurrently, readers process candidate notes in batches, and the main thread synthesizes.
@@ -347,9 +379,11 @@ What changes is *who maintains* each artifact. MOCs are Claude-maintained instea
 
 ---
 
-## Status
+## Status, and What This Is
 
 Early. See [`PLAN.md`](PLAN.md) for the full design and build phases.
+
+This is dogfooded personally and encodes one person's workflow opinions — **forks and adaptations are the expected use case**, not the fallback. Bug reports on commands, scripts, and hooks are genuinely welcome. PRs are too, but expect opinionated pushback: a change has to fit how this actually gets used day to day, and "it's more general" isn't an argument for it here.
 
 ## License
 
