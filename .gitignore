@@ -31,3 +31,8 @@ Thumbs.db
 # Python bytecode from the helper scripts
 __pycache__/
 firebase-debug.log
+
+# Beads / Dolt files (added by bd init)
+.dolt/
+*.db
+.beads-credential-key
