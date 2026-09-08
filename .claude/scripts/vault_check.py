@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Check the invariants the README claims are load-bearing.
 
-Three of them, and only three. Each corresponds to a promise made in
-CLAUDE.md or README.md; a check that doesn't defend a stated promise
-doesn't belong here.
+Four of them, and only four. Each corresponds to a promise made in
+CLAUDE.md, README.md, or /install; a check that doesn't defend a stated
+promise doesn't belong here.
 
   1. No unrendered `{{date:...}}` outside Templates/. CLAUDE.md is explicit
      that Claude is Templater here — a literal directive in a note means a
@@ -12,10 +12,14 @@ doesn't belong here.
      under Obsidian later; a dangling one is invisible in both.
   3. Every note's YAML frontmatter parses. "Every note gets frontmatter" is
      worth nothing if it's malformed.
+  4. No seed content shadows an example. A bead or memory that duplicates an
+     `example-` one without the marker outlives /install's cleanup, and the
+     user inherits a fabricated fact about people who exist nowhere in their
+     vault. This happened twice before it was caught.
 
 Exit 1 on any violation. Run with --fix-list to print paths only.
 """
-import os, re, sys
+import json, os, re, sys
 
 # Archive/ stays in scope: notes get archived, links to them don't stop
 # mattering, and an archived note is still a note somebody will read.
@@ -63,6 +67,57 @@ def parse_frontmatter(text):
             return f'line {i}: not a key: value pair -> {line.strip()[:60]!r}'
     return None
 
+def check_seed_shadows(root):
+    """Flag unmarked twins of example content in the beads seed.
+
+    /install clears the seed by judgment — "bd list to find them" — not by
+    keying on the example- marker, so there is no general way to ask whether a
+    given bead is disposable. What *is* mechanical is the failure that actually
+    shipped twice: something that duplicates an example without carrying the
+    marker, and therefore survives a cleanup that removes its twin. Checking
+    only that costs no false positives, which is the whole budget a check like
+    this gets.
+    """
+    path = os.path.join(root, '.beads', 'issues.jsonl')
+    if not os.path.exists(path):
+        return []
+
+    memories, issues, fails = {}, [], []
+    for i, line in enumerate(open(path, encoding='utf-8'), start=1):
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            d = json.loads(line)
+        except json.JSONDecodeError as e:
+            fails.append(('.beads/issues.jsonl', i, f'unparseable JSON: {e}'))
+            continue
+        if d.get('_type') == 'memory':
+            memories[d.get('key', '')] = i
+        elif d.get('id'):
+            issues.append((i, d))
+
+    for key, line in memories.items():
+        if key.startswith('example-') and key[len('example-'):] in memories:
+            bare = key[len('example-'):]
+            fails.append(('.beads/issues.jsonl', memories[bare],
+                          f'memory {bare!r} shadows {key!r} without the example- marker — '
+                          f'it survives /install and is auto-injected into every session'))
+
+    seeded = {}
+    for line, d in issues:
+        if 'example-seed' in (d.get('labels') or []):
+            seeded.setdefault((d.get('title') or '').strip().lower(), d.get('id'))
+    for line, d in issues:
+        title = (d.get('title') or '').strip().lower()
+        if title in seeded and 'example-seed' not in (d.get('labels') or []) \
+                and d.get('status') != 'closed':
+            fails.append(('.beads/issues.jsonl', line,
+                          f'issue {d.get("id")} duplicates seeded {seeded[title]} without the '
+                          f'example-seed label — it outlives the seed it refers to'))
+    return fails
+
+
 def main():
     root = sys.argv[1] if len(sys.argv) > 1 and not sys.argv[1].startswith('-') else '.'
     all_notes = sorted(notes(root))
@@ -92,6 +147,8 @@ def main():
         err = parse_frontmatter(raw)
         if err:
             fails.append((rel, 1, f'frontmatter: {err}'))
+
+    fails += check_seed_shadows(root)
 
     for rel, line, msg in fails:
         print(f'{rel}:{line}: {msg}')
