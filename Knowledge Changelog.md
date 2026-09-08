@@ -28,6 +28,11 @@ Written automatically by `/save-to-brain`. Add entries by hand any time.
 
 <!-- Newest first. Add below this line. -->
 
+### 2026-09-08 — Seed cleanup is opt-in, so anything unmarked survives /install
+**Category:** Area
+**Summary:** Three of five post-merge defects were the same shape — a bead and a memory missing the `example-` marker would have outlived the cleanup, leaving a new user with a fabricated fact about people who don't exist in their vault. Also: two checkouts sharing a bd prefix collide on the shared Dolt server, and the store rebuilt cleanly from the committed JSONL, testing the durability constraint by accident.
+**Location:** [[Areas/Claude-as-Brain]]
+
 ### 2026-09-01 — Beads has two lifetimes: durable commitments and a throwaway execution graph
 **Category:** Area
 **Summary:** A spec decomposed into beads with a goal loop draining `bd ready` is a session-scale copy of the three layers. Routing of the pattern into Beads Guide, commands, daily note, and README is tracked as seven beads; the note waits in Inbox until they close.
