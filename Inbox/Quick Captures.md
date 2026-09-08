@@ -7,7 +7,8 @@ source: human
 
 Temporary holding area. Target: **empty within 24–48 hours.**
 
-Fed by `/capture`. Emptied during `/weekly-review`.
+Fed by `/capture`. Drained by `/process-inbox` — which `/daily-note` runs a light
+pass of every morning, so this mostly empties itself.
 
 ---
 
@@ -16,14 +17,19 @@ Fed by `/capture`. Emptied during `/weekly-review`.
 Capture beats organize. Get the thought out of your head; decide where it
 belongs on Friday. A messy inbox is fine. A lost thought is not.
 
-When processing, each item goes one of six ways:
+Items are routed **by confidence, not by category**. Confident ones get filed
+silently and stamped with the reason; the rest land in `unclear/` rather than
+becoming a question you have to answer mid-morning.
+
+Destinations:
 
 1. Has a deadline → `Projects/`
 2. Ongoing responsibility → `Areas/`
 3. Reference → `Resources/`
-4. Actionable → a bead
+4. Actionable → a bead (proposed, never created silently)
 5. A durable one-line fact → `bd remember`
 6. No longer useful → delete it, guilt-free
+7. Can't tell → `Inbox/unclear/`, under a 14-day SLA
 
 ---
 

@@ -6,6 +6,12 @@ Usage: `/prep <person>` · `/prep <meeting name>` · `/prep <topic>`
 
 The goal is a short briefing you can read in ninety seconds and walk in knowing what's outstanding — especially the commitments you forgot you made.
 
+## Runs From Anywhere
+
+Resolve the vault before searching — `--vault` → `$CLAUDE_BRAIN` → `~/.config/claude-brain/config.toml` → `~/brain`. See *Where the Vault Lives* in `CLAUDE.md`. If the resolved vault isn't the directory you're standing in, name it in the first line of the answer. Pin every `bd` call: `(cd "$CLAUDE_BRAIN" && bd ...)`.
+
+Global retrieval is the other half of global capture. Capture that works everywhere while reading requires a `cd` makes writing cheaper without making reading cheaper — inbox volume rises and the payoff doesn't.
+
 ## Step 1: Resolve the Target
 
 **A person** → `People/<Name>.md`, plus every meeting they attended, every note mentioning them, beads assigned to or blocked on them.

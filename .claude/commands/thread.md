@@ -4,6 +4,12 @@ Follow a topic chronologically across the vault and report the arc: what you bel
 
 This is the command no note-taking app can do. Search finds mentions; graph view finds connections. Neither can tell you *"you were confident in March, a customer call shook it in April, and you never formally resolved it."*
 
+## Runs From Anywhere
+
+Resolve the vault before searching — `--vault` → `$CLAUDE_BRAIN` → `~/.config/claude-brain/config.toml` → `~/brain`. See *Where the Vault Lives* in `CLAUDE.md`. If the resolved vault isn't the directory you're standing in, name it in the first line of the answer. Pin every `bd` call: `(cd "$CLAUDE_BRAIN" && bd ...)`.
+
+Global retrieval is the other half of global capture. Capture that works everywhere while reading requires a `cd` makes writing cheaper without making reading cheaper — inbox volume rises and the payoff doesn't.
+
 ## The Failure Mode to Avoid
 
 **Models love to impose a tidy narrative.** Real thinking is messy, repetitive, and often goes nowhere.

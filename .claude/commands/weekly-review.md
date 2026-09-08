@@ -114,6 +114,7 @@ Summary line in the review: **"N possible contradictions filed."** Zero is a fin
 ## Step 3: Clean Up Tasks
 
 ```bash
+cd "$CLAUDE_BRAIN"            # pin to the brain's store, never ambient cwd
 bd stale                      # untouched, possibly abandoned
 bd list --overdue             # past due
 bd list --status blocked      # waiting on someone
@@ -130,20 +131,27 @@ Then run `/sync-todos`.
 
 ## Step 4: Empty the Inbox
 
-For each item in `Inbox/`: route it to Projects, Areas, Resources, a bead, or delete it.
+`/daily-note` has been auto-filing all week, so the main Inbox should be shallow. **The real work here is `Inbox/unclear/`** — the items that couldn't be routed confidently at capture time.
 
-**Deleting is a valid outcome and the most under-used one.** If it's been sitting three weeks and still doesn't have a home, it wasn't important. Say that plainly.
+Run `/process-inbox unclear`. Most resolve on a second look, because the context that was missing a week ago usually exists now: the meeting happened, the Area got created, the person got a note.
 
-**Goal: empty.**
+For what's left — anything past 14 days that still can't be routed — make a decision out loud:
+
+**Deleting is a valid outcome and the most under-used one.** If it's been sitting three weeks and still doesn't have a home, it wasn't important. Say that plainly. An item nobody can interpret after three weeks isn't being preserved, it's being avoided.
+
+**Goal: `unclear/` empty.**
 
 ## Step 5: Maintenance
 
 Run these and report only what's notable:
 
+- `/audit-routing` — re-read what got auto-filed this week and check the calibration. **This is the one that keeps auto-filing honest**; without it the confidence threshold is guesswork and the vault looks organized without being organized. Report the correct rate and any systematic pattern.
 - `/update-mocs` — new notes into maps, propose new MOCs
-- `/link-check` — broken links, orphans, dangling `distilled_to`
 - `/rebuild-dashboard` — refresh the command center
 - `/reindex` — refresh the retrieval index so next week's `/ask` sees this week's notes at their true age (last, after the file edits above)
+- `/link-check` — broken links, orphans, dangling `distilled_to`. **Quarterly is plenty**; link rot is slow. Skip it most weeks.
+
+Once a month, or when something feels off, `/brain-check` for the fuller diagnostic.
 
 ## Step 6: Plan Next Week
 
@@ -172,6 +180,9 @@ Say something if you see them — as fixable, not as failures, and suggest **one
 - No insights extracted to Areas in weeks — the system is capturing but not compounding
 - Daily notes sporadic or stopped
 - The same item carried forward five days running
+- `/audit-routing` correct rate below 70% — the filer is guessing, and the vault is quietly getting less organized while looking more so
+- No `/self-check` in months, on a vault that's grown substantially — retrieval degrades silently
+- More commits to `.claude/` and `CLAUDE.md` than notes added to `Areas/`, `Meetings/`, and `People/`. Architecture work is more rewarding than content work, which is exactly why it's the likely failure mode here. One line, no lecture.
 
 ## Close
 
