@@ -22,13 +22,31 @@ If the last note is several days old, seed from it anyway but say so: *"Last not
 
 **Pull ready work:**
 ```bash
-bd ready                        # blocker-aware; genuinely claimable
-bd list --overdue               # past due, lead with these
-bd list --due-before tomorrow   # due today
+(cd "$CLAUDE_BRAIN" && bd ready)                        # blocker-aware; genuinely claimable
+(cd "$CLAUDE_BRAIN" && bd list --overdue)               # past due, lead with these
+(cd "$CLAUDE_BRAIN" && bd list --due-before tomorrow)   # due today
 ```
+
+Pin every `bd` call to the brain's store — never ambient `cwd`. See *Where the Vault Lives* in `CLAUDE.md`.
 Put overdue items in front of the user. Don't bury them under a heading they'll scroll past.
 
 **Note today's meetings** if any are already captured in the vault.
+
+## Step 2b: Drain the Inbox — Quietly
+
+Attaching a chore to an existing daily habit is the only reliable way to get it run. But the transfer goes both ways: **the host command inherits the friction**, and this command survives precisely because it's cheap. A heavy inbox pass bolted on here eventually gets skipped wholesale, and then you lose the drain *and* the daily note.
+
+So it has to stay a report, not a workload:
+
+- Run the `/process-inbox` routine. **File what you can, silently.**
+- Anything low-confidence goes to `Inbox/unclear/`. Never ask a routing question here.
+- Beads stay proposals — surface them in one line with the rest.
+- Commit what was filed.
+- Report **one line**: *"Filed 9, 2 unclear."*
+
+**Nothing to approve unless beads were proposed.** If the pass would take more than a few seconds of the user's attention, it's too heavy — file less, flag more, move on. `/process-inbox` exists as its own command for the deliberate version.
+
+**Signal to watch:** if this command stops getting run within a month of adding this step, the attached work was too heavy. It's far easier to loosen than to rebuild the habit.
 
 ## Step 3: Hand It Over
 
@@ -38,6 +56,7 @@ Report in three lines, maximum:
 📅 Days/20250318.md
 
 Carried forward: draft Q3 timeline · follow up with Dana
+📥 Inbox: filed 9, 2 unclear
 ⚠️  cab-22 overdue (waiting on Legal since Mar 4)
 
 Set your three?
@@ -61,6 +80,7 @@ Carry forward from yesterday's note and pull deadlines from `Todos.md` by date-p
 
 - `/brief` — the read-only version; use it when they want state without creating anything
 - `/capture` — for things arriving through the day
+- `/process-inbox` — the full drain; Step 2b is its light version
 - `/weekly-review` — where the week's notes get synthesized upward
 
 ## Begin

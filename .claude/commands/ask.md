@@ -10,6 +10,12 @@ This is the flagship command. It replaces the search bar you'd have in a note-ta
 
 Everything below serves that. If you take nothing else from this file: never fill a gap with something plausible. "I found nothing on that" is a good answer. A confident synthesis of notes that don't exist is a catastrophic one, because the user will believe it — that's the entire point of having a brain they trust.
 
+Concretely, this is the **Citation Invariant** in `CLAUDE.md`, and it holds in every mode — `inline` as much as `parallel`. Every claim carries a file path, or it's labeled as inference, out loud. Recorded, inferred, or absent: there is no fourth state.
+
+## Runs From Anywhere
+
+Resolve the vault before searching — `--vault` → `$CLAUDE_BRAIN` → `~/.config/claude-brain/config.toml` → `~/brain`. See *Where the Vault Lives* in `CLAUDE.md`. If the resolved vault isn't the directory you're standing in, name it in the first line of the answer, so a question answered against the wrong vault is visible immediately rather than mistaken for an empty one.
+
 ## Step 1: Sweep Broadly
 
 Do not stop at the first grep. Run several angles — each finds things the others miss:
@@ -26,6 +32,7 @@ Do not stop at the first grep. Run several angles — each finds things the othe
 
 **6. Beads** (if `bd` is on PATH):
 ```bash
+cd "$CLAUDE_BRAIN"                     # pin to the brain's store, never ambient cwd
 bd search "<topic>" --status all       # titles; --status all is required to see CLOSED issues
 bd search "<topic>" --desc-contains    # descriptions are NOT searched by default
 bd list --notes-contains "<topic>"     # notes bodies
@@ -35,6 +42,10 @@ bd memories "<topic>"                  # stored durable facts
 **Closed issues matter.** "What did we decide" is very often answered by a closed bead. `bd search` excludes closed by default and only searches titles — pass `--status all`, and reach for `--desc-contains` and `--notes-contains` before concluding nothing is there.
 
 **7. Recency.** Check the last two weeks of `Days/` regardless of keyword hits. Recent context frequently bears on a question without matching its words.
+
+**8. The Inbox.** `Inbox/Quick Captures.md` and `Inbox/unclear/`. Unrouted material is still real material, and `unclear/` specifically holds things that couldn't be placed — often because they're the *only* note on their subject, which is exactly when a question about that subject would otherwise come back empty. Cite them as what they are: *"an unrouted capture from Sep 2."*
+
+**Exclude `Templates/eval/`** from every sweep. Those are test fixtures, not notes, and citing them would be citing the answer key.
 
 ## Step 2: Read, Don't Skim
 
@@ -118,6 +129,11 @@ Skip steps 6 and the commitments note. Search markdown only. Mention the limitat
 
 **`/ask has anyone raised concerns about the Q3 timeline?`**
 → Search "Q3", "timeline", "slip", "at risk", "delay", "concern". Read hits fully — this question is about sentiment, which doesn't survive grep excerpts. Report who said what, when, and whether it was ever resolved.
+
+## Related
+
+- `/thread` — when the question is how something *changed*, not what it is
+- `/self-check` — verifies this command still works as the vault grows
 
 ## Begin
 

@@ -9,6 +9,9 @@
 .obsidian/workspace-mobile.json
 .obsidian/cache
 
+# Private — never reaches the remote. See "What Goes In Here" in CLAUDE.md.
+Private/
+
 # OS
 .DS_Store
 Thumbs.db

@@ -19,9 +19,29 @@ For full workflow details: `bd prime`
 
 ## Beads Is Optional
 
-If `bd` is not installed, this vault still works. Task tracking falls back to hand-maintained markdown in `Todos.md`, and the memory layer is unavailable. Mention it once, then proceed without nagging.
+If `bd` is not installed, this vault still works — notes are unaffected. What's actually lost: `bd ready` (blocker-aware claimable work) and `bd stale` (quiet abandonment), neither of which a markdown table can answer, plus the memory layer entirely. `Todos.md` becomes hand-maintained.
+
+That's a real downgrade, not a cosmetic one. State it once, precisely, then proceed without nagging.
 
 Install: `brew install beads`
+
+## Pin Every Call
+
+Beads resolves its active project from the working directory. A `bd` call made
+from inside some other project's directory lands in **that** project's store,
+silently, and surfaces in no future brain session — the user finds out weeks
+later when a memory they're sure they stored isn't there.
+
+Always pin to the brain's store:
+
+```bash
+(cd "$CLAUDE_BRAIN" && bd remember "..." --key ...)
+(cd "$CLAUDE_BRAIN" && bd ready)
+```
+
+The reverse holds too: a brain command must never read or mutate the bead store
+of whatever directory it happened to be launched from. `/brief` asserts which
+store is active in one line, daily, so a misroute is visible within a day.
 
 ## Gotchas
 
@@ -33,3 +53,4 @@ Documented in full in `Beads Guide.md`. The ones that bite most often:
 - `--notes` on create; `--append-notes` on update (plain `--notes` overwrites)
 - `-l` / `--labels` for categorization — there is no `--tag` flag on create
 - `bd list --ready` is **not** `bd ready`. Only the latter is blocker-aware.
+- Never create a bead silently on the user's behalf. A wrong bead is a false obligation; a missed one is a commitment that never became trackable. Propose, or confirm in one line.

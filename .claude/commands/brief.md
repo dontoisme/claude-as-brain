@@ -26,7 +26,37 @@ bd list --due-before tomorrow      # due today
 
 **Blocked** — `bd list --status blocked`, sorted oldest first via `--sort updated`. These are the chase candidates.
 
-**Inbox** — count items in `Inbox/`. Mention only if over five.
+**Inbox** — count items in `Inbox/`. Mention only if over five. Also count `Inbox/unclear/`, and check ages:
+
+```bash
+find Inbox/unclear -name "*.md" -mtime +14 2>/dev/null
+```
+
+**Anything past 14 days gets surfaced.** That's the Inbox SLA, and it's the only aging signal in the system — an inbox nobody can see the age of becomes the junk drawer. One line, naming the oldest item, not a list.
+
+**Vault health** — cheap checks, reported only when something is actually off:
+
+```bash
+ls -t Days/*.md | head -1                       # days since last daily note
+ls -lt Dashboard.md Todos.md | head -2          # generated-artifact age
+ls -t Days/*Review*.md Weeks/*.md 2>/dev/null | head -1   # last weekly review
+```
+
+Days since the last `/weekly-review`, unprocessed inbox depth, stale-bead count, broken-link count if `/link-check` has run recently. **This is not a nag — it's one line of state.** The maintenance commands are recurring, unprompted, and low-reward, so they stop silently and nothing announces it. Surfacing decay costs nothing and converts an invisible failure into a visible one. Full diagnostic is `/brain-check`; this is the daily glance at it.
+
+**Bead store assertion** — one line, every time, no exceptions:
+
+```bash
+(cd "$CLAUDE_BRAIN" && bd list 2>/dev/null | head -1)
+```
+
+Beads resolves its project from the working directory. If a `bd` call has been landing in some project's store instead of the brain's, that failure is invisible for weeks and costs real memories. Naming the active store daily makes it visible within a day. Report it compactly — `beads: ~/brain (cab)` — and only escalate if it isn't what it should be.
+
+**Note count** — when the vault crosses **200** notes on `inline`, or **500** while still on `inline`, say so **once**:
+
+> *You're at 520 notes. `parallel` retrieval mode starts to win around here — `/self-check` will tell you whether it actually does for your vault.*
+
+Once. Track that you've said it; nobody switches modes unprompted because nobody is counting.
 
 **Today's meetings** — anything already captured in `Days/` or `Meetings/`. Don't invent a calendar you can't see; if there's no meeting info in the vault, skip the section silently.
 
@@ -47,7 +77,8 @@ bd list --due-before tomorrow      # due today
 - cab-31 — "Revisit annual-only pricing" — open 3 weeks, untouched
 - Waiting on Legal since Mar 4 (cab-22) — worth chasing
 
-**Inbox:** 7 items
+**Inbox:** 7 items · 2 unclear (oldest 19d)
+**Vault:** no weekly review in 24d · beads: ~/brain (cab)
 ```
 
 Then **one line** of orientation. Not analysis — a pointer:
@@ -68,6 +99,8 @@ That's the whole brief.
 
 **Skip empty sections.** No stale items means no stale heading.
 
+**The health line does not get to grow.** Everything added above is subject to the one-screen cap, and the cap wins. A healthy vault produces *one* compact line — `beads: ~/brain (cab)` — or none at all. Report health only where a threshold is actually crossed; a brief that lists six green checkmarks every morning is a brief people stop reading, and then the one morning something is genuinely wrong they don't see it either.
+
 ## If `bd` Isn't Installed
 
 Build the brief from `Todos.md` and the last few daily notes. Overdue items come from date-parsing the todo table. Say once that beads would make the ready/stale detection real, then don't mention it again.
@@ -76,11 +109,20 @@ Build the brief from `Todos.md` and the last few daily notes. Overdue items come
 
 End with at most one suggestion, and only when it's earned:
 
-- Inbox over ten → "Worth a `/weekly-review`"
+- Inbox over ten → "`/process-inbox` will drain it"
+- Unclear item past SLA → "`/process-inbox unclear` — three weeks is a decision, not a backlog"
 - Meeting today with prior notes → "`/prep <meeting>` before that call?"
 - No daily note yet → "`/daily-note` to start today's"
+- No weekly review in three weeks → "`/weekly-review` — insights aren't reaching Areas"
+- Something structural looks off → "`/brain-check`"
 
 One. Not a menu.
+
+## Related
+
+- `/brain-check` — the full diagnostic behind the vault-health line
+- `/daily-note` — the write side; this one creates nothing
+- `/process-inbox` — the drain this reports on
 
 ## Begin
 

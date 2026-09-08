@@ -341,3 +341,81 @@ This repo is the **public template**. Your actual brain is a separate clone with
 Nothing specific to your employer — customer names, roadmap detail, org structure, internal metrics — belongs here. Keeping the two physically separate is the safeguard, because one is meant to be pushed publicly and the other emphatically is not.
 
 If you work somewhere with a data-handling policy, note that it applies to a folder of markdown exactly as it would to any other tool holding the same content.
+
+---
+
+## Addendum — Review Pass (2026-09-08)
+
+A structural review against the README and repo at four commits produced the
+changes below. Ordered as implemented, which is roughly by what would have
+killed the system first.
+
+### Implemented
+
+1. **The inbox drain** — `/process-inbox`, auto-filing by confidence rather than
+   propose-and-approve, with routing decisions stamped in frontmatter and
+   committed so `git revert` is a real undo. `Inbox/unclear/` for low-confidence
+   items, under a 14-day SLA. `/daily-note` runs a light pass so the drain rides
+   an existing habit; `/process-inbox` stays available for deliberate cleanup.
+   Beads remain proposal-level — a wrong commitment costs more than a wrong folder.
+2. **Beads project pinning** — every brain-originated `bd` call is pinned to the
+   brain's store via explicit subshell, never ambient `cwd`. `/brief` asserts the
+   active store daily. This was the worst available class of bug: silent, and
+   invisible for weeks.
+3. **Vault resolution** — `--vault` → `$CLAUDE_BRAIN` → `~/.config/claude-brain/config.toml`
+   → `~/brain`. `/install` writes the config and prints the export line.
+   `/capture`, `/ask`, `/thread`, `/prep`, `/brief` are global; maintenance and
+   generation commands stay vault-local.
+4. **Vault health surfaced** — one line in `/brief` when a threshold is crossed,
+   full diagnostic in `/brain-check`. Maintenance commands are now labeled by how
+   required they actually are, rather than reading as five equal obligations.
+5. **Provenance stamping** — captures from outside the vault record location,
+   repo, branch, and host. Location only, never contents or diffs. The path is
+   itself information, so a work repo name is stamped as `<work>` when writing to
+   a personal vault.
+6. **`git remote remove origin`** in the install path.
+7. **Vault boundary** — `People/` sensitivity, the employer-owned-org case stated
+   explicitly (org admins can read it; you lose it at offboarding), two-vault
+   recommendation, gitignored `Private/`, and a capture guard that fires once and
+   admits it's a heuristic.
+8. **"Start here: three commands"** at the top of the README, everything else
+   under "Once it's part of your day."
+9. **The Citation Invariant** promoted to a top-level rule in `CLAUDE.md` and a
+   named section in the README. It was previously stated only as a property of
+   parallel mode; it governs both modes and always did.
+10. **`/audit-routing`** — the calibration loop that keeps auto-filing honest,
+    and **`/self-check`** — known-answer eval questions in `Templates/eval/`,
+    the only empirical way to compare `inline` against `parallel`.
+
+### Deliberate departures from the review
+
+- **`/start-today` doesn't exist in this repo.** The review assumed it from the
+  companion Obsidian vault. The daily pass went into `/daily-note` (the write
+  command) and the reporting line into `/brief` (the read command), which is the
+  split that already existed here.
+- **`bd --project` is asserted but unverified.** No `bd` was available to test
+  against, so the portable form — `(cd "$CLAUDE_BRAIN" && bd ...)` — is what the
+  commands use. `/install` checks `bd --help` once and records the answer.
+- **Beads stays optional.** The review floated making it a hard requirement since
+  it gates the headline memory layer. Rejected: the machines where this system
+  matters most are frequently machines where installing a binary isn't the user's
+  call, which is the same constraint that produced this repo. The fix is honesty
+  about the degradation, not a hard dependency.
+- **`/self-check` fixtures are two-part.** A fixed fixture on the shipped seed
+  tells you retrieval works on *someone else's* content. Part A is the pre-clear
+  baseline; Part B is where the user writes questions against their own notes,
+  which is the only version that answers the real question.
+- **Git-as-undo required a change, not just a claim.** Auto-filing is only
+  revertible if the drain commits. `/process-inbox` commits, and routes more
+  conservatively when the vault isn't a git repo.
+- **Provenance leaks in the other direction too.** `captured_from: ~/dev/acme-rewrite`
+  writes a client name into whatever vault receives it — a case the review didn't
+  raise. Handled in the stamping rules.
+
+### Not implemented
+
+- **The `second-brain-obsidian` backports** (`/ask` and `/thread` into the
+  Obsidian vault). Different repo, not reachable from here.
+- **The architecture-vs-content commit ratio** is measured by `/brain-check`
+  rather than automated. Worth noting that this addendum is itself architecture
+  work, which is exactly the instinct that check exists to catch.
