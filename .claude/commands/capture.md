@@ -20,6 +20,7 @@ bd q "<the thing>"        # quick capture, returns just an ID
 **It's a durable fact** (a stable truth about how the world works: "Dana owns billing", "fiscal year starts in April"):
 ```bash
 bd remember "<the fact>" --key <short-key>
+python3 .claude/scripts/memory_meta.py confirm <short-key>   # --kind person for facts about people
 ```
 
 **It's anything else** — an idea, an observation, a half-formed thought → append to `Inbox/Quick Captures.md`.

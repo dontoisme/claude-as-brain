@@ -30,6 +30,8 @@ Put overdue items in front of the user. Don't bury them under a heading they'll 
 
 **Note today's meetings** if any are already captured in the vault.
 
+**Bump what the new note links to.** Once the note exists with its carried-forward links: `python3 .claude/scripts/brain_index.py bump --links-of Days/YYYYMMDD.md --kind wikilink`. Skip when there is no index; it's one line and it keeps the notes you keep referring to warm.
+
 ## Step 3: Hand It Over
 
 Report in three lines, maximum:

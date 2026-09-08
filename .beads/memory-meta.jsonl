@@ -1,0 +1,4 @@
+{"confirmed": "2026-09-02", "key": "example-churn-data", "kind": "fact", "ttl": 90}
+{"confirmed": "2026-09-02", "key": "example-pricing-approval", "kind": "fact", "ttl": 90}
+{"confirmed": "2026-09-02", "key": "example-priya-renewals", "kind": "person", "ttl": 60}
+{"confirmed": "2026-09-02", "key": "remote-bd-export", "kind": "fact", "permanent": true, "ttl": 90}

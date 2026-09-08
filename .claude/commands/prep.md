@@ -40,6 +40,21 @@ bd memories "<name or topic>"
 
 Beads has a first-class `decision` issue type (alias `adr`). If the vault uses it, `bd list -t decision` is the fastest route to "what have we already settled" — check it before reading meeting notes.
 
+### Using the index
+
+If `.index/brain.sqlite3` exists, rank twice with different profiles — the spec's mixed profile for prep. Decisions in an Area or a person's note don't go stale by age; meeting context does:
+
+```bash
+python3 .claude/scripts/brain_index.py rank "<name or topic>" --profile decision --types area,person,project --k 8
+python3 .claude/scripts/brain_index.py rank "<name or topic>" --profile current  --types meeting,day --k 8
+```
+
+Then, after the briefing, bump what you read:
+
+```bash
+python3 .claude/scripts/brain_index.py bump <notes read in full> --kind prep
+```
+
 ## Step 3: The Briefing
 
 Keep it short. This is read while walking to a meeting, not at a desk.

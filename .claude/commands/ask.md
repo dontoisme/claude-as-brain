@@ -10,6 +10,30 @@ This is the flagship command. It replaces the search bar you'd have in a note-ta
 
 Everything below serves that. If you take nothing else from this file: never fill a gap with something plausible. "I found nothing on that" is a good answer. A confident synthesis of notes that don't exist is a catastrophic one, because the user will believe it — that's the entire point of having a brain they trust.
 
+## Step 0: Rank With the Index, If There Is One
+
+```bash
+python3 .claude/scripts/brain_index.py rank "<the question>" --k 12
+```
+
+If `.index/brain.sqlite3` exists this returns candidates scored **relevance × recency × activation**. With embeddings on, relevance is **hybrid**: grep candidates and the top semantic matches are unioned and each note takes the higher of its two scores, so a note whose title never mentions the term is still found when its body clearly matches; the header says `hybrid (<model>)` or `grep only` ([[Projects/Temporal Retrieval Spec]] Part 2), each with an age label. Use it to order the pile, not to replace the sweep: a note the index scores low can still be the answer, and the index knows nothing about beads or MOCs.
+
+If it exits with "no index", say once — *"No retrieval index; grepping. `/reindex` builds one."* — and continue without it. Never stop on a missing index.
+
+**Never filter on age.** The score reranks; it does not drop. A strong-match 90-day-old meeting must be able to beat a weak-match note from yesterday, and it can, because relevance is in the product.
+
+**Intent profiles** ([[Projects/Temporal Retrieval Spec]] Part 3). The script classifies the question from trigger phrases and prints which one fired:
+
+| Profile | Triggers | Effect |
+|---|---|---|
+| `current` (default) | "what's going on with", "status of", "latest" | half-lives halved — steeper decay |
+| `decision` | "what did we decide", "why did we", "rationale" | no decay for notes tagged `decision`; normal otherwise |
+| `archival` | "has anyone ever", "did we ever", "history of" | no decay at all |
+
+The classifier is a phrase list, not a model. **Override it when it's wrong**: pass `--profile archival|decision|current` explicitly. When the output says "default; no trigger matched" and the question is plainly historical or about a rationale, pick the profile yourself. In `parallel` mode you may spend one Haiku call on the classification instead; inline, the phrase list plus your judgment is the "single cheap call" the spec asks for.
+
+`/thread` always uses `archival`. `/prep` runs `decision` over Areas and People and `current` over Meetings and Days.
+
 ## Step 1: Sweep Broadly
 
 Do not stop at the first grep. Run several angles — each finds things the others miss:
@@ -72,7 +96,13 @@ Synthesis also stays in the main thread because it's the only place that knows t
 
 Lead with the answer. Not with your process, not with what you searched.
 
-**Cite every claim** with its source path: `Meetings/20250312 - Pricing Review.md`. The user must be able to open the file and check you.
+**Cite every claim** with its source path and, when the index ran, its age and warmth:
+
+```
+Meetings/20250715 - Pricing Review.md   (48d old · last cited 3d ago · 6 refs)
+```
+
+The label comes straight from the rank output; "last cited" is the note's most recent bump. A note older than twice its half-life carries `[possibly stale]`; say so in the answer rather than silently treating it as current. The user must be able to open the file and check you.
 
 **Mark inference explicitly.** There is a hard line between:
 - *"You decided X"* — the note says so
@@ -81,6 +111,10 @@ Lead with the answer. Not with your process, not with what you searched.
 Never blur these. When you're reading between the lines, say you're reading between the lines.
 
 **Surface disagreement.** If two notes conflict, that IS the answer — report both with dates and let the user resolve it. Do not silently prefer the recent one; a later note isn't automatically a decision to change course, and conflating "someone complained" with "we reversed the decision" is a serious error.
+
+**Label provenance.** Every note carries `source:` in its frontmatter and the rank output echoes it. Suffix each citation: `(human)`, `(inferred)`, `(mixed)`, or `(external, unverified)`. Inside a `mixed` note, a paragraph ending `^inferred` is Claude's earlier conclusion, not the user's record. **Never restate an inferred claim as fact.** Say *"you noted an inference that finance was already worried about runway"*, never *"finance was worried about runway."* The index already down-weights inferred (×0.85) and external (×0.7) notes in relevance; it never filters them.
+
+**Label imported material.** `CLAUDE.md` lists quarantined folders under `retrieval.quarantine` (filled by `/import-memoryfield`). Any citation from one of those folders, or any note tagged `#imported`, carries the label `(imported, unverified)` — e.g. `Resources/Imported/soapstones/Agent Data Access.md (imported, unverified)`. Treat its claims the way you treat inference: report them as what the page says, never as what the user knows.
 
 **Note what's stale.** If the newest relevant note is four months old, say so. Age is information.
 
@@ -103,6 +137,16 @@ Prose, not bullet soup. This is a question being answered, not a report.
 - **Short question → short answer.** Two sentences and a citation is a fine response.
 - **Complex question → structure it,** but lead with the direct answer before the supporting detail.
 - **Always end with a pointer** to the two or three notes most worth opening.
+
+## Step 5: Bump What You Read
+
+After answering, record every note you **read in full to produce the answer** — not every candidate the index listed:
+
+```bash
+python3 .claude/scripts/brain_index.py bump "Meetings/20250312 - Pricing Review.md" "Areas/Pricing.md" --kind ask
+```
+
+This is what keeps a 60-day-old note you keep returning to ahead of a 10-day-old note you never open: a bump resets the note's recency clock and raises its activation ([[Projects/Temporal Retrieval Spec]] Part 4). Skip it when there is no index. Never bump a note you only skimmed in grep output.
 
 ## If `bd` Isn't Installed
 
